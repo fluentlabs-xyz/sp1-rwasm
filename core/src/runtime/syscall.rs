@@ -5,6 +5,7 @@ use std::sync::Arc;
 use strum_macros::EnumIter;
 
 use crate::runtime::{Register, Runtime};
+use crate::syscall::drop::OpDrop;
 use crate::syscall::precompiles::edwards::EdAddAssignChip;
 use crate::syscall::precompiles::edwards::EdDecompressChip;
 use crate::syscall::precompiles::keccak256::KeccakPermuteChip;
@@ -99,6 +100,9 @@ pub enum SyscallCode {
 
     /// Executes the `BLS12381_DOUBLE` precompile.
     BLS12381_DOUBLE = 0x00_00_01_1F,
+
+    /// Executes the `YaoCustom` precompile.
+    RWASM_DROP= 0x00_00_02_00,
 }
 
 impl SyscallCode {
@@ -128,6 +132,7 @@ impl SyscallCode {
             0x00_00_00_F1 => SyscallCode::HINT_READ,
             0x00_00_01_1D => SyscallCode::UINT256_MUL,
             0x00_00_01_1C => SyscallCode::BLS12381_DECOMPRESS,
+            0x00_00_02_00 => SyscallCode::RWASM_DROP,
             _ => panic!("invalid syscall number: {}", value),
         }
     }
@@ -335,6 +340,7 @@ pub fn default_syscall_map() -> HashMap<SyscallCode, Arc<dyn Syscall>> {
         Arc::new(WeierstrassDecompressChip::<Bls12381>::new()),
     );
     syscall_map.insert(SyscallCode::UINT256_MUL, Arc::new(Uint256MulChip::new()));
+    syscall_map.insert(SyscallCode::RWASM_DROP, Arc::new(OpDrop::new()));
 
     syscall_map
 }
@@ -424,6 +430,9 @@ mod tests {
                 SyscallCode::HINT_READ => assert_eq!(code as u32, sp1_zkvm::syscalls::HINT_READ),
                 SyscallCode::BLS12381_DECOMPRESS => {
                     assert_eq!(code as u32, sp1_zkvm::syscalls::BLS12381_DECOMPRESS)
+                }
+                SyscallCode::RWASM_DROP =>{
+                    assert_eq!(code as u32, sp1_zkvm::syscalls::RWASM_DROP)
                 }
             }
         }
