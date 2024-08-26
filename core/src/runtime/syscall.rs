@@ -10,6 +10,7 @@ use crate::syscall::precompiles::edwards::EdDecompressChip;
 use crate::syscall::precompiles::keccak256::KeccakPermuteChip;
 use crate::syscall::precompiles::sha256::{ShaCompressChip, ShaExtendChip};
 use crate::syscall::precompiles::uint256::Uint256MulChip;
+use crate::syscall::precompiles::draft::DraftChip;
 use crate::syscall::precompiles::weierstrass::WeierstrassAddAssignChip;
 use crate::syscall::precompiles::weierstrass::WeierstrassDecompressChip;
 use crate::syscall::precompiles::weierstrass::WeierstrassDoubleAssignChip;
@@ -99,6 +100,8 @@ pub enum SyscallCode {
 
     /// Executes the `BLS12381_DOUBLE` precompile.
     BLS12381_DOUBLE = 0x00_00_01_1F,
+
+    DRAFT = 0x00_02_02_00,
 }
 
 impl SyscallCode {
@@ -128,6 +131,7 @@ impl SyscallCode {
             0x00_00_00_F1 => SyscallCode::HINT_READ,
             0x00_00_01_1D => SyscallCode::UINT256_MUL,
             0x00_00_01_1C => SyscallCode::BLS12381_DECOMPRESS,
+            0x00_02_02_00 => SyscallCode::DRAFT,
             _ => panic!("invalid syscall number: {}", value),
         }
     }
@@ -335,6 +339,7 @@ pub fn default_syscall_map() -> HashMap<SyscallCode, Arc<dyn Syscall>> {
         Arc::new(WeierstrassDecompressChip::<Bls12381>::new()),
     );
     syscall_map.insert(SyscallCode::UINT256_MUL, Arc::new(Uint256MulChip::new()));
+    syscall_map.insert(SyscallCode::DRAFT, Arc::new(DraftChip::new(SyscallCode::DRAFT)));
 
     syscall_map
 }

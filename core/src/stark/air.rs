@@ -27,6 +27,7 @@ pub(crate) mod riscv_chips {
     pub use crate::syscall::precompiles::sha256::ShaCompressChip;
     pub use crate::syscall::precompiles::sha256::ShaExtendChip;
     pub use crate::syscall::precompiles::uint256::Uint256MulChip;
+    pub use crate::syscall::precompiles::draft::DraftChip;
     pub use crate::syscall::precompiles::weierstrass::WeierstrassAddAssignChip;
     pub use crate::syscall::precompiles::weierstrass::WeierstrassDecompressChip;
     pub use crate::syscall::precompiles::weierstrass::WeierstrassDoubleAssignChip;
@@ -99,6 +100,7 @@ pub enum RiscvAir<F: PrimeField32> {
     Uint256Mul(Uint256MulChip),
     /// A precompile for decompressing a point on the BLS12-381 curve.
     Bls12381Decompress(WeierstrassDecompressChip<SwCurve<Bls12381Parameters>>),
+    Draft(DraftChip),
 }
 
 impl<F: PrimeField32> RiscvAir<F> {
@@ -149,6 +151,8 @@ impl<F: PrimeField32> RiscvAir<F> {
         chips.push(RiscvAir::Uint256Mul(uint256_mul));
         let bls12381_decompress = WeierstrassDecompressChip::<SwCurve<Bls12381Parameters>>::new();
         chips.push(RiscvAir::Bls12381Decompress(bls12381_decompress));
+        let draft = DraftChip::new(crate::runtime::SyscallCode::DRAFT);
+        chips.push(RiscvAir::Draft(draft));
         let div_rem = DivRemChip::default();
         chips.push(RiscvAir::DivRem(div_rem));
         let add = AddSubChip::default();

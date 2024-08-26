@@ -21,6 +21,7 @@ use crate::syscall::precompiles::edwards::EdDecompressEvent;
 use crate::syscall::precompiles::keccak256::KeccakPermuteEvent;
 use crate::syscall::precompiles::sha256::{ShaCompressEvent, ShaExtendEvent};
 use crate::syscall::precompiles::uint256::Uint256MulEvent;
+use crate::syscall::precompiles::draft::DraftEvent;
 use crate::syscall::precompiles::ECDecompressEvent;
 use crate::syscall::precompiles::{ECAddEvent, ECDoubleEvent};
 use crate::utils::SP1CoreOpts;
@@ -91,6 +92,8 @@ pub struct ExecutionRecord {
     pub bls12381_double_events: Vec<ECDoubleEvent>,
 
     pub uint256_mul_events: Vec<Uint256MulEvent>,
+
+    pub draft_events: Vec<DraftEvent>,
 
     pub memory_initialize_events: Vec<MemoryInitializeFinalizeEvent>,
 
