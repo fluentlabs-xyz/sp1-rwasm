@@ -151,8 +151,9 @@ impl<F: PrimeField32> RiscvAir<F> {
         chips.push(RiscvAir::Uint256Mul(uint256_mul));
         let bls12381_decompress = WeierstrassDecompressChip::<SwCurve<Bls12381Parameters>>::new();
         chips.push(RiscvAir::Bls12381Decompress(bls12381_decompress));
-        let draft = DraftChip::new(crate::runtime::SyscallCode::DRAFT);
-        chips.push(RiscvAir::Draft(draft));
+        for (_, rwasm_chip) in crate::runtime::rwasp_chips().into_iter() {
+            chips.push(RiscvAir::Draft(rwasm_chip));
+        }
         let div_rem = DivRemChip::default();
         chips.push(RiscvAir::DivRem(div_rem));
         let add = AddSubChip::default();

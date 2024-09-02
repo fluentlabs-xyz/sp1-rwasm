@@ -23,6 +23,10 @@ use crate::utils::ec::weierstrass::bls12_381::Bls12381;
 use crate::utils::ec::weierstrass::{bn254::Bn254, secp256k1::Secp256k1};
 use crate::{runtime::ExecutionRecord, runtime::MemoryReadRecord, runtime::MemoryWriteRecord};
 
+//const RWASM_PREFIX: u32 = 0x00_02_02_00;
+const RWASM_00: u32 = 0x01_01_01_00;
+const RWASM_END: u32 = 0x01_ff_ff_ff;
+
 /// A system call is invoked by the the `ecall` instruction with a specific value in register t0.
 /// The syscall number is a 32-bit integer, with the following layout (in litte-endian format)
 /// - The first byte is the syscall id.
@@ -31,6 +35,7 @@ use crate::{runtime::ExecutionRecord, runtime::MemoryReadRecord, runtime::Memory
 /// - The third byte is the number of additional cycles the syscall uses.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, EnumIter, Ord, PartialOrd)]
 #[allow(non_camel_case_types)]
+#[repr(u32)]
 pub enum SyscallCode {
     /// Halts the program.
     HALT = 0x00_00_00_00,
@@ -101,18 +106,18 @@ pub enum SyscallCode {
     /// Executes the `BLS12381_DOUBLE` precompile.
     BLS12381_DOUBLE = 0x00_00_01_1F,
 
-    DRAFT = 0x00_02_02_00,
-
-    RWASM_I32_ADD = 0x00_02_02_67, // Last byte is rwasm bytecode byte of instruction
-    RWASM_I32_SUB = 0x00_02_02_68,
-    RWASM_I32_MUL = 0x00_02_02_69,
-    RWASM_I32_DIV_S = 0x00_02_02_6a,
-    RWASM_I32_DIV_U = 0x00_02_02_6b,
-    RWASM_I32_REM_S = 0x00_02_02_6c,
-    RWASM_I32_REM_U = 0x00_02_02_6d,
-    RWASM_I32_AND = 0x00_02_02_6e,
-    RWASM_I32_OR = 0x00_02_02_6f,
-    RWASM_I32_XOR = 0x00_02_02_70,
+    RWASM_00        = 0x01_01_01_00,
+    RWASM_I32_ADD   = 0x01_01_01_67, // Last byte is rwasm bytecode byte of instruction
+    RWASM_I32_SUB   = 0x01_01_01_68,
+    RWASM_I32_MUL   = 0x01_01_01_69,
+    RWASM_I32_DIV_S = 0x01_01_01_6a,
+    RWASM_I32_DIV_U = 0x01_01_01_6b,
+    RWASM_I32_REM_S = 0x01_01_01_6c,
+    RWASM_I32_REM_U = 0x01_01_01_6d,
+    RWASM_I32_AND   = 0x01_01_01_6e,
+    RWASM_I32_OR    = 0x01_01_01_6f,
+    RWASM_I32_XOR   = 0x01_01_01_70,
+    RWASM_END       = 0x01_ff_ff_ff,
 
 /* TODO
   - rotl
@@ -157,8 +162,17 @@ impl SyscallCode {
             0x00_00_00_F1 => SyscallCode::HINT_READ,
             0x00_00_01_1D => SyscallCode::UINT256_MUL,
             0x00_00_01_1C => SyscallCode::BLS12381_DECOMPRESS,
-            0x00_02_02_00 => SyscallCode::DRAFT,
+            //0x00_02_02_00 => SyscallCode::DRAFT,
 
+            raw_code => {
+                if raw_code >= RWASM_00 && raw_code <= RWASM_END {
+                    unsafe { std::mem::transmute::<u32, SyscallCode>(raw_code) }
+                } else {
+                    panic!("invalid syscall number: {}", value)
+                }
+            }
+
+/*
             0x00_02_02_67 => SyscallCode::RWASM_I32_ADD,
             0x00_02_02_68 => SyscallCode::RWASM_I32_SUB,
             0x00_02_02_69 => SyscallCode::RWASM_I32_MUL,
@@ -171,6 +185,7 @@ impl SyscallCode {
             0x00_02_02_70 => SyscallCode::RWASM_I32_XOR,
 
             _ => panic!("invalid syscall number: {}", value),
+*/
         }
     }
 
@@ -306,6 +321,14 @@ impl<'a, 'b> SyscallContext<'a, 'b> {
     }
 }
 
+pub fn rwasp_chips() -> Vec<(SyscallCode, DraftChip)> {
+    let mut list = vec![];
+    // TODO: add other calls that after testing of this simple calls
+    list.push((SyscallCode::RWASM_I32_ADD, DraftChip::new(SyscallCode::RWASM_I32_ADD)));
+    list.push((SyscallCode::RWASM_I32_SUB, DraftChip::new(SyscallCode::RWASM_I32_SUB)));
+    list
+}
+
 pub fn default_syscall_map() -> HashMap<SyscallCode, Arc<dyn Syscall>> {
     let mut syscall_map = HashMap::<SyscallCode, Arc<dyn Syscall>>::default();
     syscall_map.insert(SyscallCode::HALT, Arc::new(SyscallHalt {}));
@@ -378,11 +401,9 @@ pub fn default_syscall_map() -> HashMap<SyscallCode, Arc<dyn Syscall>> {
     );
     syscall_map.insert(SyscallCode::UINT256_MUL, Arc::new(Uint256MulChip::new()));
 
-    syscall_map.insert(SyscallCode::DRAFT, Arc::new(DraftChip::new(SyscallCode::DRAFT)));
-
-    // TODO: add other calls that after testing of this simple calls
-    syscall_map.insert(SyscallCode::RWASM_I32_ADD, Arc::new(DraftChip::new(SyscallCode::RWASM_I32_ADD)));
-    syscall_map.insert(SyscallCode::RWASM_I32_SUB, Arc::new(DraftChip::new(SyscallCode::RWASM_I32_SUB)));
+    for (syscall_id, rwasm_chip) in rwasp_chips().into_iter() {
+        syscall_map.insert(syscall_id, Arc::new(rwasm_chip));
+    }
 
     syscall_map
 }
