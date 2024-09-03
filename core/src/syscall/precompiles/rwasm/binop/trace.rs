@@ -1,5 +1,6 @@
 use p3_field::PrimeField32;
 
+use crate::air::Word;
 use crate::memory::MemoryReadWriteCols;
 use crate::utils::pad_rows;
 use crate::{air::MachineAir, runtime::ExecutionRecord};
@@ -52,15 +53,17 @@ impl<F: PrimeField32> MachineAir<F> for BinOpChip {
             }  
 
             first_cols.stack_ptr_record.populate(channel, event.stack_ptr_read_record, &mut new_byte_lookup_events);
-            first_cols.x_addr=F::from_canonical_u32(event.x_addr);
-            first_cols.y_addr= F::from_canonical_u32(event.y_addr);
+            first_cols.opcode=F::from_canonical_u32(event.opcode);
+            first_cols.stack_ptr_addr=F::from_canonical_u32(event.stack_ptr_addr);
+            first_cols.x_addr=Word::from(event.x_addr);
+            first_cols.y_addr= Word::from(event.y_addr);
             first_cols.is_real=F::from_bool(true);
           
 
           
-            first_cols.pre_stack_ptr=F::from_canonical_u32(event.pre_stack_ptr_val);
-            first_cols.post_stack_ptr=F::from_canonical_u32(event.post_stack_ptr_val);
-            first_cols.stack_ptr_addr=F::from_canonical_u32(event.stack_ptr_addr);
+            first_cols.pre_stack_ptr_val=Word::from(event.pre_stack_ptr_val);
+            first_cols.post_stack_ptr_val=Word::from(event.post_stack_ptr_val);
+            
            
 
             for (i,write_record) in event.res_write_records.into_iter().enumerate(){

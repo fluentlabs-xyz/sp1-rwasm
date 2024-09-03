@@ -22,14 +22,17 @@ pub(crate) struct BinOpCols<T> {
     pub clk: T,
     pub nonce: T,
 
-    pub x_addr: T,
-    pub y_addr: T,
+
+    pub opcode: T,
     pub stack_ptr_addr: T,
-    pub pre_stack_ptr:T,
-    pub post_stack_ptr:T,
+
+    pub x_addr: Word<T>,
+    pub y_addr: Word<T>,
+    
     pub x_val :Word<T>,
     pub y_val :Word<T>, 
-    
+    pub pre_stack_ptr_val: Word<T>,
+    pub post_stack_ptr_val: Word<T>,
     pub res :AddOperation<T>,
     pub x_memory_record :[MemoryReadCols<T>;I64_LEN],
     pub y_memory_record :[MemoryReadCols<T>;I64_LEN],

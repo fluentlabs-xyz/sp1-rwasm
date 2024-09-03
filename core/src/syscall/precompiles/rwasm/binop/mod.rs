@@ -38,6 +38,7 @@ pub struct BinOpEvent {
     pub x_addr:u32,
     pub y_addr:u32,
     pub op_addr:u32,
+    pub stack_ptr_addr: u32,
     
 
     pub op_read_record:MemoryReadRecord,
@@ -46,7 +47,7 @@ pub struct BinOpEvent {
     pub stack_ptr_read_record:MemoryReadRecord,
     pub stack_ptr_write_record:MemoryWriteRecord,
     pub res_write_records:Vec<MemoryWriteRecord>,
-    pub stack_ptr_addr: u32,
+  
     
 }
 
