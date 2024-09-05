@@ -4,7 +4,7 @@ use crate::memory::{value_as_limbs, MemoryReadCols, MemoryWriteCols};
 use crate::operations::field::field_op::{FieldOpCols, FieldOperation};
 use crate::operations::field::params::NumWords;
 use crate::operations::field::params::{Limbs, NumLimbs};
-use crate::operations::IsZeroOperation;
+use crate::operations::{IsZeroOperation, AddOperation};
 use crate::runtime::{ExecutionRecord, Program, Syscall, SyscallCode};
 use crate::runtime::{MemoryReadRecord, MemoryWriteRecord};
 use crate::stark::MachineRecord;
@@ -28,6 +28,30 @@ use sp1_derive::AlignedBorrow;
 use std::borrow::{Borrow, BorrowMut};
 use std::mem::size_of;
 use typenum::Unsigned;
+
+use p3_field::Field;
+use crate::air::Word;
+
+trait BinaryOperation<F: Field> {
+    fn populate(
+        &mut self,
+        record: &mut ExecutionRecord,
+        shard: u32,
+        channel: u32,
+        a_u32: u32,
+        b_u32: u32,
+    ) -> u32;
+
+    fn eval<AB: SP1AirBuilder>(
+        builder: &mut AB,
+        a: Word<AB::Var>,
+        b: Word<AB::Var>,
+        cols: AddOperation<AB::Var>,
+        shard: AB::Var,
+        channel: impl Into<AB::Expr> + Clone,
+        is_real: AB::Expr,
+    );
+}
 
 /// The number of columns in the DraftCols.
 const NUM_COLS: usize = size_of::<DraftCols<u8>>();
@@ -81,6 +105,8 @@ pub struct DraftCols<T> {
 
     /// The pointer to the second input, which contains the y value and the modulus.
     pub y_ptr: T,
+
+    pub operation: AddOperation<T>,
 
     // Memory columns.
     // x_memory is written to with the result, which is why it is of type MemoryWriteCols.
