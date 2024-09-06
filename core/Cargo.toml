@@ -32,6 +32,9 @@ rrs-lib = { git = "https://github.com/GregAC/rrs.git" }
 sp1-derive = { path = "../derive" }
 sp1-primitives = { path = "../primitives" }
 
+paste = "1.0.15"
+macro_rules_attribute = "0.2.0"
+
 anyhow = "1.0.83"
 amcl = { package = "snowbridge-amcl", version = "1.0.2", default-features = false, features = [
   "bls381",

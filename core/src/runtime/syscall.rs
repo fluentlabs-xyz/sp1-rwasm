@@ -27,6 +27,7 @@ use crate::{runtime::ExecutionRecord, runtime::MemoryReadRecord, runtime::Memory
 const RWASM_00: u32 = 0x01_01_01_00;
 const RWASM_END: u32 = 0x01_ff_ff_ff;
 
+#[macro_rules_attribute::apply(crate::append_rwasm_syscall_code)]
 /// A system call is invoked by the the `ecall` instruction with a specific value in register t0.
 /// The syscall number is a 32-bit integer, with the following layout (in litte-endian format)
 /// - The first byte is the syscall id.
@@ -106,6 +107,7 @@ pub enum SyscallCode {
     /// Executes the `BLS12381_DOUBLE` precompile.
     BLS12381_DOUBLE = 0x00_00_01_1F,
 
+/*
     RWASM_00        = 0x01_01_01_00,
     RWASM_I32_ADD   = 0x01_01_01_67, // Last byte is rwasm bytecode byte of instruction
     RWASM_I32_SUB   = 0x01_01_01_68,
@@ -132,6 +134,7 @@ pub enum SyscallCode {
   - le_u
   - ge_s
   - ge_u
+*/
 */
 }
 
@@ -321,6 +324,21 @@ impl<'a, 'b> SyscallContext<'a, 'b> {
     }
 }
 
+macro_rules! decl_rwasm_chips {
+    ($([$kind:ident [$([$CName:ident $byte:literal])+]])+) => { paste::paste! {
+        pub fn rwasp_chips() -> Vec<(SyscallCode, DraftChip)> {
+            let mut list = vec![];
+            $($(list.push(
+                    (SyscallCode::[<RWASM_ $CName:snake:upper>], DraftChip::new(SyscallCode::[<RWASM_ $CName:snake:upper>]))
+            );)*)*
+            list.push((SyscallCode::RWASM_I32_SUB, DraftChip::new(SyscallCode::RWASM_I32_SUB)));
+            list
+        }
+    }}
+}
+crate::rwasm_chips! { decl_rwasm_chips [] }
+
+/*
 pub fn rwasp_chips() -> Vec<(SyscallCode, DraftChip)> {
     let mut list = vec![];
     // TODO: add other calls that after testing of this simple calls
@@ -328,6 +346,7 @@ pub fn rwasp_chips() -> Vec<(SyscallCode, DraftChip)> {
     list.push((SyscallCode::RWASM_I32_SUB, DraftChip::new(SyscallCode::RWASM_I32_SUB)));
     list
 }
+*/
 
 pub fn default_syscall_map() -> HashMap<SyscallCode, Arc<dyn Syscall>> {
     let mut syscall_map = HashMap::<SyscallCode, Arc<dyn Syscall>>::default();

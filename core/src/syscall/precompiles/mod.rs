@@ -4,6 +4,7 @@ pub mod sha256;
 pub mod uint256;
 pub mod weierstrass;
 pub mod draft;
+pub mod rwasm_macro;
 use crate::operations::field::params::{NumLimbs, NumWords};
 use crate::runtime::SyscallContext;
 use crate::utils::ec::weierstrass::bls12_381::bls12381_decompress;

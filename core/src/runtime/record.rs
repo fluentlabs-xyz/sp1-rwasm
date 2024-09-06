@@ -26,6 +26,7 @@ use crate::syscall::precompiles::ECDecompressEvent;
 use crate::syscall::precompiles::{ECAddEvent, ECDoubleEvent};
 use crate::utils::SP1CoreOpts;
 
+#[macro_rules_attribute::apply(crate::append_rwasm_record_events)]
 /// A record of the execution of a program. Contains event data for everything that happened during
 /// the execution of the shard.
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
@@ -93,7 +94,7 @@ pub struct ExecutionRecord {
 
     pub uint256_mul_events: Vec<Uint256MulEvent>,
 
-    pub draft_events: Vec<DraftEvent>,
+    //pub draft_events: Vec<DraftEvent>,
 
     pub memory_initialize_events: Vec<MemoryInitializeFinalizeEvent>,
 
