@@ -26,6 +26,14 @@ use crate::syscall::precompiles::ECDecompressEvent;
 use crate::syscall::precompiles::{ECAddEvent, ECDoubleEvent};
 use crate::utils::SP1CoreOpts;
 
+macro_rules! use_rwasm_events {
+    ($([$kind:ident [$([$CName:ident $byte:literal])+]])+) => { paste::paste! {
+        $($(use crate::syscall::precompiles::rwasm::[<$CName Event>];)*)*
+    }};
+}
+crate::rwasm_chips!(use_rwasm_events []);
+
+
 #[macro_rules_attribute::apply(crate::append_rwasm_record_events)]
 /// A record of the execution of a program. Contains event data for everything that happened during
 /// the execution of the shard.

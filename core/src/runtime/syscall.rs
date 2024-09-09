@@ -23,6 +23,14 @@ use crate::utils::ec::weierstrass::bls12_381::Bls12381;
 use crate::utils::ec::weierstrass::{bn254::Bn254, secp256k1::Secp256k1};
 use crate::{runtime::ExecutionRecord, runtime::MemoryReadRecord, runtime::MemoryWriteRecord};
 
+macro_rules! use_rwasm_chips {
+    ($([$kind:ident [$([$CName:ident $byte:literal])+]])+) => { paste::paste! {
+        $($(use crate::syscall::precompiles::rwasm::[<$CName Chip>];)*)*
+    }};
+}
+crate::rwasm_chips!(use_rwasm_chips []);
+
+
 //const RWASM_PREFIX: u32 = 0x00_02_02_00;
 const RWASM_00: u32 = 0x01_01_01_00;
 const RWASM_END: u32 = 0x01_ff_ff_ff;

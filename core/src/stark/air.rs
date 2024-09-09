@@ -37,8 +37,17 @@ pub(crate) mod riscv_chips {
     pub use crate::utils::ec::weierstrass::bn254::Bn254Parameters;
     pub use crate::utils::ec::weierstrass::secp256k1::Secp256k1Parameters;
     pub use crate::utils::ec::weierstrass::SwCurve;
+
+    macro_rules! use_rwasm_chips {
+        ($([$kind:ident [$([$CName:ident $byte:literal])+]])+) => { paste::paste! {
+            $($(use crate::syscall::precompiles::rwasm::[<$CName Chip>];)*)*
+        }};
+    }
+    crate::rwasm_chips!(use_rwasm_chips []);
+
 }
 
+//#[macro_rules_attribute::apply(crate::append_rwasm_chip_variants)]
 /// An AIR for encoding RISC-V execution.
 ///
 /// This enum contains all the different AIRs that are used in the Sp1 RISC-V IOP. Each variant is
