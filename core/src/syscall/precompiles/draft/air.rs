@@ -56,6 +56,8 @@ trait BinaryOperation<F: Field> {
 /// The number of columns in the DraftCols.
 const NUM_COLS: usize = size_of::<DraftCols<u8>>();
 
+
+#[macro_rules_attribute::apply(crate::decl_rwasm_template)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DraftEvent {
     pub lookup_id: usize,
@@ -69,6 +71,7 @@ pub struct DraftEvent {
     pub x_memory_records: Vec<MemoryWriteRecord>,
     pub y_memory_records: Vec<MemoryReadRecord>,
 }
+rwasm_template_draft_event!();
 
 //#[derive(Default)]
 pub struct DraftChip(SyscallCode);
@@ -84,6 +87,7 @@ impl DraftChip {
 
 const WORDS_FIELD_ELEMENT: usize = 8;
 
+#[macro_rules_attribute::apply(crate::decl_rwasm_template)]
 /// A set of columns for the Draft operation.
 #[derive(Debug, Clone, AlignedBorrow)]
 #[repr(C)]
@@ -106,14 +110,15 @@ pub struct DraftCols<T> {
     /// The pointer to the second input, which contains the y value and the modulus.
     pub y_ptr: T,
 
-    pub operation: AddOperation<T>,
-
     // Memory columns.
     // x_memory is written to with the result, which is why it is of type MemoryWriteCols.
     pub x_memory: GenericArray<MemoryWriteCols<T>, typenum::U8>,
     pub y_memory: GenericArray<MemoryReadCols<T>, typenum::U8>,
 
     pub is_real: T,
+}
+rwasm_template_draft_cols! {
+    pub operation: AddOperation<T>,
 }
 
 impl<F: PrimeField32> MachineAir<F> for DraftChip {

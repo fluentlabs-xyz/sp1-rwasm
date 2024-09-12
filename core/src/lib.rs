@@ -12,6 +12,7 @@
     incomplete_features
 )]
 #![warn(unused_extern_crates)]
+#![feature(macro_metavar_expr)]
 
 extern crate alloc;
 
