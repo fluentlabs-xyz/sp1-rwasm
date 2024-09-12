@@ -19,7 +19,7 @@ use crate::runtime::MemoryRecordEnum;
 use crate::stark::MachineRecord;
 use crate::syscall::precompiles::edwards::EdDecompressEvent;
 use crate::syscall::precompiles::keccak256::KeccakPermuteEvent;
-use crate::syscall::precompiles::rwasm::binop::BinOpEvent;
+use crate::syscall::precompiles::rwasm::binop32::BinOp32Event;
 use crate::syscall::precompiles::sha256::{ShaCompressEvent, ShaExtendEvent};
 use crate::syscall::precompiles::uint256::Uint256MulEvent;
 use crate::syscall::precompiles::ECDecompressEvent;
@@ -99,7 +99,7 @@ pub struct ExecutionRecord {
 
     pub bls12381_decompress_events: Vec<ECDecompressEvent>,
 
-    pub rwasm_binop_events:Vec<BinOpEvent>,
+    pub rwasm_binop_events:Vec<BinOp32Event>,
 
     /// The public values.
     pub public_values: PublicValues<u32, u32>,

@@ -65,6 +65,19 @@ impl Syscall for BinOp32Chip {
                         (signed_x.wrapping_mul(signed_y)),
                     )
                 },
+                RwasmOp::I32DiV =>{
+                    let signed_x = x_val as i32;
+                    let signed_y = y_val as i32;
+                    (
+                        x_memory_read_record,
+                        y_memory_read_record,
+                        x_val,
+                        y_val,
+                        (signed_x.wrapping_div(signed_y)),
+                    )
+                }
+
+            
 
                 
             }

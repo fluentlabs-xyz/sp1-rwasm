@@ -4,7 +4,11 @@ use p3_keccak_air::KeccakCols;
 use sp1_derive::AlignedBorrow;
 
 use crate::{
-    air::Word, alu::MulCols, memory::{MemoryReadCols, MemoryReadWriteCols, MemoryWriteCols}, operations::AddOperation, runtime::MemoryWriteRecord
+    air::Word,
+    alu::MulCols,
+    memory::{MemoryReadCols, MemoryReadWriteCols, MemoryWriteCols},
+    operations::AddOperation,
+    runtime::MemoryWriteRecord,
 };
 //the length of a word of rwasm in RISCV word.
 pub const I32_LEN: usize = 1;
@@ -22,7 +26,8 @@ pub(crate) struct BinOp32Cols<T> {
     pub clk: T,
     pub nonce: T,
 
-    pub opcode: T,
+    pub rwasm_opcode: T,
+    pub riscv_opcode: T,
     pub stack_ptr_addr: T,
 
     pub x_addr: Word<T>,
@@ -32,8 +37,7 @@ pub(crate) struct BinOp32Cols<T> {
     pub y_val: Word<T>,
     pub pre_stack_ptr_val: Word<T>,
     pub post_stack_ptr_val: Word<T>,
-    pub addsubres: AddOperation<T>,
-    pub mulcols: MulCols<T>,
+    pub res: Word<T>,
     pub x_memory_record: MemoryReadCols<T>,
     pub y_memory_record: MemoryReadCols<T>,
     pub stack_ptr_record: MemoryReadCols<T>,
@@ -46,4 +50,4 @@ pub(crate) struct BinOp32Cols<T> {
     pub is_real: T,
 }
 
-pub const NUM_BINOP_MEM_COLS: usize = size_of::<BinOp32Cols<u8>>();
+pub const NUM_BINOP32_MEM_COLS: usize = size_of::<BinOp32Cols<u8>>();
