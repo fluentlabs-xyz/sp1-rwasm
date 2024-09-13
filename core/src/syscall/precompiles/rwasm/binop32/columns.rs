@@ -46,7 +46,10 @@ pub(crate) struct BinOp32Cols<T> {
     pub is_add: T,
     pub is_sub: T,
     pub is_mul: T,
-    pub is_div: T,
+    pub is_divu: T,
+    pub is_divs:T,
+    pub is_remu:T,
+    pub is_rems:T,
     pub is_real: T,
 }
 

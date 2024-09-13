@@ -22,7 +22,6 @@ pub struct BinOp32Event {
     pub clk: u32,
 
     pub opcode: u32,
-    pub is_i32: bool,
 
     pub pre_stack_ptr_val: u32,
     pub post_stack_ptr_val: u32,

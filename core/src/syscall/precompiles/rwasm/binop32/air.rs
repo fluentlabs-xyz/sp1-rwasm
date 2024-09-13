@@ -61,7 +61,7 @@ where
         // Instead of wrting constraint for rwasm op we simply use the sp1 alu to  do the job.
         // note that we have to generate sp1 alu event in generate dependencies.
         builder.send_alu(local.riscv_opcode, local.res, local.x_val, local.y_val, local.shard, local.channel, local.nonce, 
-            local.is_sub +local.is_add+local.is_mul+local.is_div);
+            local.is_sub +local.is_add+local.is_mul+local.is_divs+local.is_divu+local.is_rems+local.is_remu);
         
         
         

@@ -32,7 +32,7 @@ impl Syscall for BinOp32Chip {
 
             let (y_memory_read_record, y_val) = rt.mr(stack_ptr_val - 1);
             match op {
-                RwasmOp::I32Add => {
+                RwasmOp::I32ADD=> {
                     let signed_x = x_val as i32;
                     let signed_y = y_val as i32;
                     (
@@ -43,7 +43,7 @@ impl Syscall for BinOp32Chip {
                         (signed_x.wrapping_add( signed_y)),
                     )
                 }
-                RwasmOp::I32Sub => {
+                RwasmOp::I32SUB => {
                     let signed_x = x_val as i32;
                     let signed_y = y_val as i32;
                     (
@@ -54,7 +54,7 @@ impl Syscall for BinOp32Chip {
                         (signed_x.wrapping_sub( signed_y)),
                     )
                 }
-                RwasmOp::I32Mul => {
+                RwasmOp::I32MUL=> {
                     let signed_x = x_val as i32;
                     let signed_y = y_val as i32;
                     (
@@ -65,7 +65,7 @@ impl Syscall for BinOp32Chip {
                         (signed_x.wrapping_mul(signed_y)),
                     )
                 },
-                RwasmOp::I32DiV =>{
+                RwasmOp::I32DIVS =>{
                     let signed_x = x_val as i32;
                     let signed_y = y_val as i32;
                     (
@@ -76,6 +76,9 @@ impl Syscall for BinOp32Chip {
                         (signed_x.wrapping_div(signed_y)),
                     )
                 }
+                RwasmOp::I32DIVU => todo!(),
+                RwasmOp::I32REMS => todo!(),
+                RwasmOp::I32REMU => todo!(),
 
             
 
@@ -101,7 +104,6 @@ impl Syscall for BinOp32Chip {
             channel,
             clk: start_clk,
             opcode,
-            is_i32: op.is_i32_op(),
             stack_ptr_addr,
             pre_stack_ptr_val: stack_ptr_val,
             post_stack_ptr_val: new_stack_ptr_val,

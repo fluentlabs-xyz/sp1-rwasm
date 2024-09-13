@@ -3,25 +3,27 @@ pub mod binop32;
 
 
 pub enum RwasmOp{
-    I32Add = 106,
-    I32Sub = 107,
-    I32Mul = 108,
-    I32DiV = 109,
+    I32ADD = 106,
+    I32SUB = 107,
+    I32MUL = 108,
+    I32DIVS = 109,
+    I32DIVU = 110,
+    I32REMS = 111,
+    I32REMU = 112,
 }
 
 impl RwasmOp{
     pub fn from_u32(op_code:u32)->RwasmOp{
         match op_code {
-            106=>RwasmOp::I32Add,
-            107=>RwasmOp::I32Sub,
-            108=>RwasmOp::I32Mul,
+            106=>RwasmOp::I32ADD,
+            107=>RwasmOp::I32SUB,
+            108=>RwasmOp::I32MUL,
+            109=>RwasmOp::I32DIVS,
+            110=>RwasmOp::I32DIVU,
+            111=>RwasmOp::I32REMS,
+            112=>RwasmOp::I32REMU,
+
             _=>unreachable!(),
-        }
-    }
-    pub fn is_i32_op(&self)->bool{
-        match self {
-            Self::I32Add |Self::I32Sub=>true,
-            _ =>false,
         }
     }
 }
