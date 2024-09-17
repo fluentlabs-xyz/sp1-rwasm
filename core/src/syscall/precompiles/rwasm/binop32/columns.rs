@@ -43,6 +43,16 @@ pub(crate) struct BinOp32Cols<T> {
     pub stack_ptr_record: MemoryReadCols<T>,
     pub y_write_record: MemoryWriteCols<T>,
     pub stack_ptr_write_record: MemoryWriteCols<T>,
+    pub is_arith: T,
+    pub is_bitop: T,
+    pub is_real: T,
+    pub arith_selector: ArithSelector<T>,
+    pub bitop_selector: BitOpSelector<T>,
+    
+}
+
+pub const NUM_BINOP32_MEM_COLS: usize = size_of::<BinOp32Cols<u8>>();
+pub(crate) struct ArithSelector<T>{
     pub is_add: T,
     pub is_sub: T,
     pub is_mul: T,
@@ -53,4 +63,13 @@ pub(crate) struct BinOp32Cols<T> {
     pub is_real: T,
 }
 
-pub const NUM_BINOP32_MEM_COLS: usize = size_of::<BinOp32Cols<u8>>();
+pub (crate) struct BitOpSelector<T>{
+    pub is_and: T,
+    pub is_or: T,
+    pub is_xor: T,
+    pub is_shl: T,
+    pub is_shrs:T,
+    pub is_shru:T,
+    pub is_rotl:T,
+    pub is_rotr: T,
+}

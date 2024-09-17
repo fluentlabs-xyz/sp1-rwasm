@@ -8,7 +8,7 @@ use crate::syscall;
 use crate::utils::pad_rows;
 use crate::{air::MachineAir, runtime::ExecutionRecord};
 
-use super::columns::{BinOp32Cols, NUM_BINOP32_MEM_COLS};
+use super::columns::{ArithSelector, BinOp32Cols, NUM_BINOP32_MEM_COLS};
 use super::BinOp32Event;
 use super::{super::RwasmOp, BinOp32Chip};
 
@@ -120,17 +120,27 @@ impl BinOp32Chip {
         cols.y_addr = Word::from(event.y_addr);
 
         let op = RwasmOp::from_u32(event.opcode);
-        cols.is_add = F::from_bool(false);
-        cols.is_sub = F::from_bool(false);
-        cols.is_mul = F::from_bool(false);
-        cols.is_divu = F::from_bool(false);
-        cols.is_divs = F::from_bool(false);
-        cols.is_remu = F::from_bool(false);
-        cols.is_rems = F::from_bool(false);
+       
+        cols.arith_selector.is_add = F::from_bool(false);
+        cols.arith_selector.is_sub = F::from_bool(false);
+        cols.arith_selector.is_mul = F::from_bool(false);
+        cols.arith_selector.is_divu = F::from_bool(false);
+        cols.arith_selector.is_divs = F::from_bool(false);
+        cols.arith_selector.is_remu = F::from_bool(false);
+        cols.arith_selector.is_rems = F::from_bool(false);
+        cols.bitop_selector.is_and = F::from_bool(false);
+        cols.bitop_selector.is_or = F::from_bool(false);
+        cols.bitop_selector.is_xor = F::from_bool(false);
+        cols.bitop_selector.is_shl = F::from_bool(false);
+        cols.bitop_selector.is_shrs = F::from_bool(false);
+        cols.bitop_selector.is_shru= F::from_bool(false);
+        cols.bitop_selector.is_rotl= F::from_bool(false);
+        cols.bitop_selector.is_rotr=  F::from_bool(false);
+        
         // we choose one op and disable the rest.
         match op {
             RwasmOp::I32ADD => {
-                cols.is_add = F::from_bool(true);
+                cols.arith_selector.is_add = F::from_bool(true);
                 cols.riscv_opcode = F::from_canonical_u32(1); // 1 is the enum value of Opcode::Add
                 new_alu_events.push(AluEvent{ 
                     lookup_id:  create_alu_lookup_id(),
@@ -143,7 +153,7 @@ impl BinOp32Chip {
                      sub_lookups:  create_alu_lookups()})
             }
             RwasmOp::I32SUB => {
-                cols.is_sub = F::from_bool(true);
+                cols.arith_selector.is_sub = F::from_bool(true);
                 cols.riscv_opcode = F::from_canonical_u32(2); // 2 is the enum value of Opcode::SUB
 
                 new_alu_events.push(AluEvent{ 
@@ -157,7 +167,7 @@ impl BinOp32Chip {
                      sub_lookups:  create_alu_lookups()})
             }
             RwasmOp::I32MUL => {
-                cols.is_mul = F::from_bool(true);
+                cols.arith_selector.is_mul= F::from_bool(true);
                 cols.riscv_opcode = F::from_canonical_u32(30); // 30 is the enum value of Opcode::MUL
 
                 new_alu_events.push(AluEvent{ 
@@ -171,7 +181,7 @@ impl BinOp32Chip {
                      sub_lookups:  create_alu_lookups()})
             }
             RwasmOp::I32DIVS => {
-                cols.is_divs = F::from_bool(true);
+                cols.arith_selector.is_divs= F::from_bool(true);
                 cols.riscv_opcode = F::from_canonical_u32(34); // 34 is the enum value of Opcode::DIVS
 
                 new_alu_events.push(AluEvent{ 
@@ -187,8 +197,8 @@ impl BinOp32Chip {
             }
 
             RwasmOp::I32DIVU=> {
-                cols.is_divu = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(35); // 34 is the enum value of Opcode::DIVU
+                cols.arith_selector.is_divu = F::from_bool(true);
+                cols.riscv_opcode = F::from_canonical_u32(Opcode::DIVU as u32); // 34 is the enum value of Opcode::DIVU
 
                 new_alu_events.push(AluEvent{ 
                     lookup_id:  create_alu_lookup_id(),
@@ -202,8 +212,8 @@ impl BinOp32Chip {
 
             }
             RwasmOp::I32REMS => {
-                cols.is_rems = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(36); // 34 is the enum value of Opcode::DIVU
+                cols.arith_selector.is_rems = F::from_bool(true);
+                cols.riscv_opcode = F::from_canonical_u32(Opcode::REM as u32); // 34 is the enum value of Opcode::DIVU
 
                 new_alu_events.push(AluEvent{ 
                     lookup_id:  create_alu_lookup_id(),
@@ -216,8 +226,8 @@ impl BinOp32Chip {
                      sub_lookups:  create_alu_lookups()})
             },
             RwasmOp::I32REMU=> {
-                cols.is_rems = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(37); // 34 is the enum value of Opcode::DIVU
+                cols.arith_selector.is_rems = F::from_bool(true);
+                cols.riscv_opcode = F::from_canonical_u32(37); 
 
                 new_alu_events.push(AluEvent{ 
                     lookup_id:  create_alu_lookup_id(),
@@ -229,6 +239,92 @@ impl BinOp32Chip {
                      c: event.y_val, 
                      sub_lookups:  create_alu_lookups()})
             },
+            RwasmOp::I32AND => {
+                cols.bitop_selector.is_and = F::from_bool(true);
+                cols.riscv_opcode = F::from_canonical_u32(37); 
+
+                new_alu_events.push(AluEvent{ 
+                    lookup_id:  create_alu_lookup_id(),
+                    shard, channel,
+                    clk: event.clk,
+                    opcode: Opcode::REMU,
+                     a: event.res_val, 
+                     b: event.x_val,
+                     c: event.y_val, 
+                     sub_lookups:  create_alu_lookups()})
+            },
+            RwasmOp::I32OR => {
+                cols.bitop_selector.is_or = F::from_bool(true);
+                cols.riscv_opcode = F::from_canonical_u32(3); 
+
+                new_alu_events.push(AluEvent{ 
+                    lookup_id:  create_alu_lookup_id(),
+                    shard, channel,
+                    clk: event.clk,
+                    opcode: Opcode::OR,
+                     a: event.res_val, 
+                     b: event.x_val,
+                     c: event.y_val, 
+                     sub_lookups:  create_alu_lookups()})
+            },
+            RwasmOp::I32XOR => {
+                cols.bitop_selector.is_xor = F::from_bool(true);
+                cols.riscv_opcode = F::from_canonical_u32(3); 
+
+                new_alu_events.push(AluEvent{ 
+                    lookup_id:  create_alu_lookup_id(),
+                    shard, channel,
+                    clk: event.clk,
+                    opcode: Opcode::XOR,
+                     a: event.res_val, 
+                     b: event.x_val,
+                     c: event.y_val, 
+                     sub_lookups:  create_alu_lookups()})
+            },
+            RwasmOp::I32SHL => {
+                cols.bitop_selector.is_shl = F::from_bool(true);
+                cols.riscv_opcode = F::from_canonical_u32(3); 
+
+                new_alu_events.push(AluEvent{ 
+                    lookup_id:  create_alu_lookup_id(),
+                    shard, channel,
+                    clk: event.clk,
+                    opcode: Opcode::SLL,
+                     a: event.res_val, 
+                     b: event.x_val,
+                     c: event.y_val, 
+                     sub_lookups:  create_alu_lookups()})
+            },
+            RwasmOp::I32SHRS => {
+                cols.bitop_selector.is_shrs = F::from_bool(true);
+                cols.riscv_opcode = F::from_canonical_u32(3); 
+
+                new_alu_events.push(AluEvent{ 
+                    lookup_id:  create_alu_lookup_id(),
+                    shard, channel,
+                    clk: event.clk,
+                    opcode: Opcode::SRL,
+                     a: event.res_val, 
+                     b: event.x_val,
+                     c: event.y_val, 
+                     sub_lookups:  create_alu_lookups()})
+            },
+            RwasmOp::I32SHRU => {
+                cols.bitop_selector.is_shrs = F::from_bool(true);
+                cols.riscv_opcode = F::from_canonical_u32(3); 
+
+                new_alu_events.push(AluEvent{ 
+                    lookup_id:  create_alu_lookup_id(),
+                    shard, channel,
+                    clk: event.clk,
+                    opcode: Opcode::SRA,
+                     a: event.res_val, 
+                     b: event.x_val,
+                     c: event.y_val, 
+                     sub_lookups:  create_alu_lookups()})
+            },
+            RwasmOp::I32ROTL => todo!(),
+            RwasmOp::I32ROTR => todo!(),
         }
 
         cols.is_real = F::from_bool(true);

@@ -26,59 +26,67 @@ impl Syscall for BinOp32Chip {
         let (op_read_record, opcode) = rt.mr(arg1);
         let op = RwasmOp::from_u32(opcode);
         let (stack_ptr_read_record, stack_ptr_val) = rt.mr(arg2);
+        let (x_read_records, x_val) = rt.mr(stack_ptr_val);
 
-        let (x_read_records, y_read_records, x_val, y_val, res) = {
-            let (x_memory_read_record, x_val) = rt.mr(stack_ptr_val);
-
-            let (y_memory_read_record, y_val) = rt.mr(stack_ptr_val - 1);
+        let (y_read_records, y_val) = rt.mr(stack_ptr_val - 1);
+        let signed_x = x_val as i32;
+        let signed_y = y_val as i32;
+        let  res = {
+           
             match op {
                 RwasmOp::I32ADD=> {
-                    let signed_x = x_val as i32;
-                    let signed_y = y_val as i32;
-                    (
-                        x_memory_read_record,
-                        y_memory_read_record,
-                        x_val,
-                        y_val,
-                        (signed_x.wrapping_add( signed_y)),
-                    )
+                    
+                    
+                      
+                        signed_x.wrapping_add( signed_y)
+                    
                 }
                 RwasmOp::I32SUB => {
-                    let signed_x = x_val as i32;
-                    let signed_y = y_val as i32;
-                    (
-                        x_memory_read_record,
-                        y_memory_read_record,
-                        x_val,
-                        y_val,
-                        (signed_x.wrapping_sub( signed_y)),
-                    )
+                 
+                    
+                      
+                        signed_x.wrapping_sub( signed_y)
+                    
                 }
                 RwasmOp::I32MUL=> {
-                    let signed_x = x_val as i32;
-                    let signed_y = y_val as i32;
-                    (
-                        x_memory_read_record,
-                        y_memory_read_record,
-                        x_val,
-                        y_val,
-                        (signed_x.wrapping_mul(signed_y)),
-                    )
+                   
+    
+                        signed_x.wrapping_mul(signed_y)
+                    
                 },
                 RwasmOp::I32DIVS =>{
-                    let signed_x = x_val as i32;
-                    let signed_y = y_val as i32;
-                    (
-                        x_memory_read_record,
-                        y_memory_read_record,
-                        x_val,
-                        y_val,
-                        (signed_x.wrapping_div(signed_y)),
-                    )
+                    signed_x.wrapping_div(signed_y)
+                    
                 }
-                RwasmOp::I32DIVU => todo!(),
-                RwasmOp::I32REMS => todo!(),
-                RwasmOp::I32REMU => todo!(),
+                RwasmOp::I32DIVU => {
+                    (x_val.wrapping_div(y_val)) as i32
+                },
+                RwasmOp::I32REMS => {
+                    signed_x.wrapping_div(signed_y) 
+                },
+                RwasmOp::I32REMU => {
+                    x_val.wrapping_rem(y_val) as i32
+                },
+                RwasmOp::I32AND => {
+                    signed_x & signed_y
+                },
+                RwasmOp::I32OR => {
+                    signed_x | signed_y
+                },
+                RwasmOp::I32XOR => {
+                    signed_x^signed_y
+                },
+                RwasmOp::I32SHL =>{
+                    signed_x<<signed_y
+                },
+                RwasmOp::I32SHRS => {
+                    signed_x>>signed_y
+                },
+                RwasmOp::I32SHRU => {
+                    (x_val>>y_val) as i32
+                },
+                RwasmOp::I32ROTL => todo!(),
+                RwasmOp::I32ROTR => todo!(),
 
             
 
