@@ -114,4 +114,81 @@ macro_rules! decl_rwasm_template {
         pub(crate) use [<rwasm_template_ $Name:snake>];
     }};
 
+
+    //(impl Syscall for $Name:ident {
+    (impl Syscall for BinOp32Chip {
+
+         fn num_extra_cycles(&$self1:ident) -> u32 { $($code1:tt)* }
+
+         fn execute(&$self:ident, $rt:ident: &mut SyscallContext, $arg1:ident: u32, $arg2:ident: u32) -> Option<u32> {
+             {$($code2:tt)*}
+             let ($($bind:tt)*) = { { $($code3:tt)* } };
+             {$($code4:tt)*}
+         }
+
+
+      }) => { paste::paste! {
+        //macro_rules! [<rwasm_template_impl_syscall_ $Name:snake>] {
+        macro_rules! [<rwasm_template_impl_syscall_bin_op32_chip>] {
+            ($$($$rest:tt)*) => {
+
+         //impl Syscall for $Name {
+         impl Syscall for BinOp32Chip {
+
+         fn num_extra_cycles(&$self1) -> u32 { $($code1)* }
+
+         fn execute(&$self, $rt: &mut SyscallContext, $arg1: u32, $arg2: u32) -> Option<u32> {
+             $($code2)*
+             let ($($bind)*) = { $($code3)* $$($$rest)* };
+             $($code4)*
+         }
+
+         }
+
+
+            };
+        }
+        //pub(crate) use [<rwasm_template_impl_syscall_ $Name:snake>];
+        pub(crate) use [<rwasm_template_impl_syscall_bin_op32_chip>];
+    }};
+
+
+
+    //(impl $Name:ident {
+    (impl BinOp32Chip {
+
+         fn event_to_row <F: PrimeField32>(
+            &$self:ident,
+            $event:ident: &BinOp32Event,
+         ) -> (
+            [F; NUM_BINOP32_MEM_COLS],
+            Vec<ByteLookupEvent>$(,)?
+         ) { {$($code1:tt)*} {$($code2:tt)*} }
+
+      }) => { paste::paste! {
+        //macro_rules! [<rwasm_template_impl_ $Name:snake>] {
+        macro_rules! [<rwasm_template_impl_bin_op32_chip>] {
+            ($$($$rest:tt)*) => {
+
+         //impl $Name {
+         impl BinOp32Chip {
+
+         fn event_to_row <F: PrimeField32>(
+            &$self,
+            $event: &BinOp32Event,
+         ) -> (
+            [F; NUM_BINOP32_MEM_COLS],
+            Vec<ByteLookupEvent>,
+         ) { $($code1)* $$($$rest)* $($code2)* }
+
+         }
+
+            };
+        }
+        //pub(crate) use [<rwasm_template_impl_ $Name:snake>];
+        pub(crate) use [<rwasm_template_impl_bin_op32_chip>];
+    }};
+
+
+
 }

@@ -4,7 +4,7 @@ use crate::memory::{value_as_limbs, MemoryReadCols, MemoryWriteCols};
 use crate::operations::field::field_op::{FieldOpCols, FieldOperation};
 use crate::operations::field::params::NumWords;
 use crate::operations::field::params::{Limbs, NumLimbs};
-use crate::operations::{IsZeroOperation, AddOperation};
+use crate::operations::{AddOperation, IsZeroOperation};
 use crate::runtime::{ExecutionRecord, Program, Syscall, SyscallCode};
 use crate::runtime::{MemoryReadRecord, MemoryWriteRecord};
 use crate::stark::MachineRecord;
@@ -29,8 +29,8 @@ use std::borrow::{Borrow, BorrowMut};
 use std::mem::size_of;
 use typenum::Unsigned;
 
-use p3_field::Field;
 use crate::air::Word;
+use p3_field::Field;
 
 trait BinaryOperation<F: Field> {
     fn populate(
@@ -55,7 +55,6 @@ trait BinaryOperation<F: Field> {
 
 /// The number of columns in the DraftCols.
 const NUM_COLS: usize = size_of::<DraftCols<u8>>();
-
 
 #[macro_rules_attribute::apply(crate::decl_rwasm_template)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -310,24 +309,24 @@ where
         let y_limbs = limbs_from_access::<_, typenum::U8, _>(&local.y_memory);
 
         // Evaluate the u64 multiplication
-/*
-        local.output.eval(
-            builder,
-            &x_limbs,
-            &y_limbs,
-            FieldOperation::Mul,
-            local.shard,
-            local.channel,
-            local.is_real,
-        );
-*/
+        /*
+                local.output.eval(
+                    builder,
+                    &x_limbs,
+                    &y_limbs,
+                    FieldOperation::Mul,
+                    local.shard,
+                    local.channel,
+                    local.is_real,
+                );
+        */
 
-/*
-        // Assert that the correct result is being written to x_memory.
-        builder
-            .when(local.is_real)
-            .assert_all_eq(local.output.result, value_as_limbs(&local.x_memory));
-*/
+        /*
+                // Assert that the correct result is being written to x_memory.
+                builder
+                    .when(local.is_real)
+                    .assert_all_eq(local.output.result, value_as_limbs(&local.x_memory));
+        */
 
         // Read and write x.
         builder.eval_memory_access_slice(
