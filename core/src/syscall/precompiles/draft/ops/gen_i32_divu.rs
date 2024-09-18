@@ -1,3 +1,5 @@
+use super::*;
+
 #[apply(skip)]
 fn gen_trace() {
     cols.is_divu = F::from_bool(true);

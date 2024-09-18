@@ -168,7 +168,7 @@ macro_rules! decl_rwasm_template {
       }) => { paste::paste! {
         //macro_rules! [<rwasm_template_impl_ $Name:snake>] {
         macro_rules! [<rwasm_template_impl_bin_op32_chip>] {
-            ($$($$rest:tt)*) => {
+            ($cols:ident $$($$rest:tt)*) => {
 
          //impl $Name {
          impl BinOp32Chip {
@@ -179,7 +179,11 @@ macro_rules! decl_rwasm_template {
          ) -> (
             [F; NUM_BINOP32_MEM_COLS],
             Vec<ByteLookupEvent>,
-         ) { $($code1)* $$($$rest)* $($code2)* }
+         ) {
+               $($code1)*
+               $$($$rest)*
+               $($code2)*
+           }
 
          }
 
@@ -191,4 +195,34 @@ macro_rules! decl_rwasm_template {
 
 
 
+}
+
+#[macro_export]
+macro_rules! rwasm_selectors {
+    ($cb0:ident$(::$cbn:ident)* [$($rest:tt)*]) => {
+        $cb0$(::$cbn)*! {
+            [ add sub mul divu divs remu rems ]
+            $($rest)*
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! append_rwasm_selectors {
+    (
+        [$($selector:ident)*]
+        $(#[$($attr:tt)*])+
+        pub(crate) struct $Name:ident$(<$($G:ident),*>)? {
+            $($code:tt)*
+        }
+    ) => { paste::paste! {
+        $(#[$($attr)*])*
+        pub(crate) struct $Name$(<$($G),*>)? {
+            $($code)*
+            $(pub [<is_ $selector>]: T,)*
+        }
+    }};
+
+    //($($rest:tt)*) => { $crate::syscall::precompiles::draft::ops::macros::rwasm_selectors! { $crate::append_rwasm_selectors [$($rest)*] } };
+    ($($rest:tt)*) => { $crate::rwasm_selectors! { $crate::append_rwasm_selectors [$($rest)*] } };
 }

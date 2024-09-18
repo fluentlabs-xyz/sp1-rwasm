@@ -14,6 +14,7 @@ use crate::{
 pub const I32_LEN: usize = 1;
 pub const I64_LEN: usize = 2;
 
+#[macro_rules_attribute::apply(crate::append_rwasm_selectors)]
 ///  BinOpCols
 /// The columns defined in the `p3_keccak_air` crate are embedded here as `keccak`. Other columns
 /// are used to track the VM context.
@@ -43,13 +44,6 @@ pub(crate) struct BinOp32Cols<T> {
     pub stack_ptr_record: MemoryReadCols<T>,
     pub y_write_record: MemoryWriteCols<T>,
     pub stack_ptr_write_record: MemoryWriteCols<T>,
-    pub is_add: T,
-    pub is_sub: T,
-    pub is_mul: T,
-    pub is_divu: T,
-    pub is_divs: T,
-    pub is_remu: T,
-    pub is_rems: T,
     pub is_real: T,
 }
 

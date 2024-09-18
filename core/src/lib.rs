@@ -13,6 +13,7 @@
 )]
 #![warn(unused_extern_crates)]
 #![feature(macro_metavar_expr)]
+#![feature(proc_macro_hygiene)]
 
 extern crate alloc;
 

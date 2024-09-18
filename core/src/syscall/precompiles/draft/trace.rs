@@ -121,6 +121,7 @@ impl BinOp32Chip {
             cols.y_addr = Word::from(event.y_addr);
 
             //let op = RwasmOp::from_u32(event.opcode);
+
             cols.is_add = F::from_bool(false);
             cols.is_sub = F::from_bool(false);
             cols.is_mul = F::from_bool(false);
@@ -153,7 +154,25 @@ impl BinOp32Chip {
     }
 }
 
-rwasm_template_impl_bin_op32_chip! {
+/*
+macro_rules! prepend_selectors {
+  ([$($selector:ident)*] $macr:ident! { $cols:ident $($code:tt)* }) => { paste::paste! {
+      $macr! {
+          //let set_sectors_to_false = |cols| {
+              $($cols.[<is_ $selector>] = F::from_bool(false);)*
+          //};
+          $($code)*
+      }
+  }};
+  ($($rest:tt)*) => { $crate::rwasm_selectors! { prepend_selectors [$($rest)*] } };
+}
+*/
+
+//#[macro_rules_attribute::apply(prepend_selectors)]
+
+rwasm_template_impl_bin_op32_chip! { _cols
+
+        //set_selectors_to_false(cols);
 
         /*
         // we choose one op and disable the rest.
