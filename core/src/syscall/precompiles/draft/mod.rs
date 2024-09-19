@@ -8,7 +8,7 @@ mod air2;
 pub mod columns;
 mod execute;
 //mod opair;
-mod trace;
+pub mod trace;
 
 use p3_keccak_air::KeccakAir;
 use serde::{Deserialize, Serialize};

@@ -170,6 +170,28 @@ macro_rules! prepend_selectors {
 
 //#[macro_rules_attribute::apply(prepend_selectors)]
 
+pub struct OpcodeTraceBuilder<'a, F: PrimeField32> {
+    pub cols: &'a mut BinOp32Cols<F>,
+    pub new_alu_events: &'a mut Vec<AluEvent>,
+    pub shard: u32,
+    pub channel: u32,
+    pub event: &'a BinOp32Event,
+}
+
+impl<'a, F: PrimeField32> std::ops::Deref for OpcodeTraceBuilder<'a, F> {
+    type Target = Self;
+    fn deref(&self) -> &Self { self }
+}
+
+pub trait OpcodeTrace<'a, const OPCODE: &'static str, F: PrimeField32>
+where
+    OpcodeTraceBuilder<'a, F>: std::ops::Deref<Target = Self>,
+{
+    fn opcode_specific(self: &mut OpcodeTraceBuilder<'a, F>);
+}
+
+//impl OpcodeTrace<"I32ADD"> for
+
 rwasm_template_impl_bin_op32_chip! { _cols
 
         //set_selectors_to_false(cols);
@@ -178,6 +200,7 @@ rwasm_template_impl_bin_op32_chip! { _cols
         // we choose one op and disable the rest.
         match op {
             RwasmOp::I32ADD => {
+
                 cols.is_add = F::from_bool(true);
                 cols.riscv_opcode = F::from_canonical_u32(1); // 1 is the enum value of Opcode::Add
                 new_alu_events.push(AluEvent{
@@ -189,6 +212,7 @@ rwasm_template_impl_bin_op32_chip! { _cols
                      b: event.x_val,
                      c: event.y_val,
                      sub_lookups:  create_alu_lookups()})
+
             }
             RwasmOp::I32SUB => {
                 cols.is_sub = F::from_bool(true);

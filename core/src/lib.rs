@@ -14,6 +14,8 @@
 #![warn(unused_extern_crates)]
 #![feature(macro_metavar_expr)]
 #![feature(proc_macro_hygiene)]
+#![feature(adt_const_params)]
+#![feature(arbitrary_self_types)]
 
 extern crate alloc;
 
