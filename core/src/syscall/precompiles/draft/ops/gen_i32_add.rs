@@ -1,5 +1,4 @@
 use super::*;
-use trace::*;
 
 impl<'a, F: PrimeField32> OpcodeTrace<'a, "I32Add", F> for OpcodeTraceBuilder<'a, F> {
     fn opcode_specific(&mut self) {
@@ -20,15 +19,8 @@ impl<'a, F: PrimeField32> OpcodeTrace<'a, "I32Add", F> for OpcodeTraceBuilder<'a
     }
 }
 
-#[apply(skip)]
-fn gen_execute() {
-    let signed_x = x_val as i32;
-    let signed_y = y_val as i32;
-    (
-        x_memory_read_record,
-        y_memory_read_record,
-        x_val,
-        y_val,
-        (signed_x.wrapping_add(signed_y)),
-    )
+impl OpcodeExecute<"I32Add"> for OpcodeExecuteBuilder {
+    fn opcode_specific(&mut self) -> i32 {
+        self.signed_x.wrapping_add(self.signed_y)
+    }
 }

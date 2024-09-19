@@ -91,6 +91,26 @@ impl Syscall for BinOp32Chip {
     }
 }
 
+pub struct OpcodeExecuteBuilder {
+    pub x_val: u32,
+    pub y_val: u32,
+    pub signed_x: i32,
+    pub signed_y: i32,
+}
+
+impl std::ops::Deref for OpcodeExecuteBuilder {
+    type Target = Self;
+    fn deref(&self) -> &Self { self }
+}
+
+pub trait OpcodeExecute<const OPCODE: &'static str>
+where
+    OpcodeExecuteBuilder: std::ops::Deref<Target = Self>,
+{
+    fn opcode_specific(self: &mut OpcodeExecuteBuilder) -> i32;
+}
+
+
 rwasm_template_impl_syscall_bin_op32_chip! {
 /*
             match op {
