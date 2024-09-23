@@ -25,17 +25,29 @@ mod __generated {
     // START MOD LIST
     #[path = "../gen_i32_add.rs"]
     mod gen_i32_add;
+    #[path = "../gen_i32_and.rs"]
+    mod gen_i32_and;
     #[path = "../gen_i32_divs.rs"]
     mod gen_i32_divs;
     #[path = "../gen_i32_divu.rs"]
     mod gen_i32_divu;
     #[path = "../gen_i32_mul.rs"]
     mod gen_i32_mul;
+    #[path = "../gen_i32_or.rs"]
+    mod gen_i32_or;
     #[path = "../gen_i32_rems.rs"]
     mod gen_i32_rems;
     #[path = "../gen_i32_remu.rs"]
     mod gen_i32_remu;
+    #[path = "../gen_i32_shl.rs"]
+    mod gen_i32_shl;
+    #[path = "../gen_i32_shrs.rs"]
+    mod gen_i32_shrs;
+    #[path = "../gen_i32_shru.rs"]
+    mod gen_i32_shru;
     #[path = "../gen_i32_sub.rs"]
     mod gen_i32_sub;
+    #[path = "../gen_i32_xor.rs"]
+    mod gen_i32_xor;
     // END MOD LIST
 }
