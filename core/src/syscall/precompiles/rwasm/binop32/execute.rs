@@ -21,16 +21,21 @@ impl Syscall for BinOp32Chip {
         let start_clk = rt.clk;
         let op_addr = arg1;
         let stack_ptr_addr = arg2;
-
+        
         //we read the binary_op from the syscall address
         let (op_read_record, opcode) = rt.mr(arg1);
+        println!("arg1: {}" ,arg1);
+        println!("arg2: {}" ,arg2);
+        println!("opcode:{}",opcode);
         let op = RwasmOp::from_u32(opcode);
         let (stack_ptr_read_record, stack_ptr_val) = rt.mr(arg2);
         let (x_read_records, x_val) = rt.mr(stack_ptr_val);
 
-        let (y_read_records, y_val) = rt.mr(stack_ptr_val - 1);
+        let (y_read_records, y_val) = rt.mr(stack_ptr_val - 4);
         let signed_x = x_val as i32;
         let signed_y = y_val as i32;
+        println!("x_signed:{}",signed_x);
+        println!("y_signed:{}",signed_y);
         let  res = {
            
             match op {
@@ -93,7 +98,7 @@ impl Syscall for BinOp32Chip {
                 
             }
         };
-
+        println!("res:{}",res);
         rt.clk += 1;
 
      
@@ -129,6 +134,6 @@ impl Syscall for BinOp32Chip {
             op_addr,
         });
 
-        None
+        Some(res as u32)
     }
 }

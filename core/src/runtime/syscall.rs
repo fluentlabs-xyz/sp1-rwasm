@@ -9,6 +9,7 @@ use crate::syscall::drop::OpDrop;
 use crate::syscall::precompiles::edwards::EdAddAssignChip;
 use crate::syscall::precompiles::edwards::EdDecompressChip;
 use crate::syscall::precompiles::keccak256::KeccakPermuteChip;
+use crate::syscall::precompiles::rwasm::binop32::BinOp32Chip;
 use crate::syscall::precompiles::sha256::{ShaCompressChip, ShaExtendChip};
 use crate::syscall::precompiles::uint256::Uint256MulChip;
 use crate::syscall::precompiles::weierstrass::WeierstrassAddAssignChip;
@@ -103,6 +104,9 @@ pub enum SyscallCode {
 
     /// Executes the `YaoCustom` precompile.
     RWASM_DROP= 0x00_00_02_00,
+
+    /// Executes the `YaoCustom` precompile.
+    RWASM_BINOP= 0x00_00_02_01,
 }
 
 impl SyscallCode {
@@ -133,6 +137,7 @@ impl SyscallCode {
             0x00_00_01_1D => SyscallCode::UINT256_MUL,
             0x00_00_01_1C => SyscallCode::BLS12381_DECOMPRESS,
             0x00_00_02_00 => SyscallCode::RWASM_DROP,
+            0x00_00_02_01 => SyscallCode::RWASM_BINOP,
             _ => panic!("invalid syscall number: {}", value),
         }
     }
@@ -341,7 +346,7 @@ pub fn default_syscall_map() -> HashMap<SyscallCode, Arc<dyn Syscall>> {
     );
     syscall_map.insert(SyscallCode::UINT256_MUL, Arc::new(Uint256MulChip::new()));
     syscall_map.insert(SyscallCode::RWASM_DROP, Arc::new(OpDrop::new()));
-
+    syscall_map.insert(SyscallCode::RWASM_BINOP, Arc::new(BinOp32Chip::new()));
     syscall_map
 }
 
@@ -434,6 +439,7 @@ mod tests {
                 SyscallCode::RWASM_DROP =>{
                     assert_eq!(code as u32, sp1_zkvm::syscalls::RWASM_DROP)
                 }
+                SyscallCode::RWASM_BINOP => assert_eq!(code as u32, sp1_zkvm::syscalls::RWASM_BINOP),
             }
         }
     }

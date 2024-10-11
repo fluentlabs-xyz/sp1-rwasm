@@ -12,7 +12,7 @@ mod syscall;
 #[macro_use]
 mod utils;
 mod subproof;
-
+mod rwasmtest;
 pub use hooks::*;
 pub use instruction::*;
 pub use memory::*;
