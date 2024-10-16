@@ -41,19 +41,21 @@ pub(crate) struct BinOp32Cols<T> {
     pub x_val: Word<T>,
     pub y_val: Word<T>,
     
-    // pub post_stack_ptr_val: Word<T>,
-    // pub res: Word<T>,
+    pub post_stack_ptr_val: Word<T>,
+    pub res: Word<T>,
   
     pub x_memory_record: MemoryReadCols<T>,
     pub y_memory_record: MemoryReadCols<T>,
    
     // pub y_write_record: MemoryWriteCols<T>,
     // pub stack_ptr_write_record: MemoryWriteCols<T>,
-    // pub is_arith: T,
-    // pub is_bitop: T,
+    pub alu_event_nonce: T,
+    pub is_arith: T,
+    pub is_bitop: T,
    
-    // pub arith_selector: ArithSelector<T>,
-    // pub bitop_selector: BitOpSelector<T>,
+    pub arith_selector: ArithSelector<T>,
+    pub bitop_selector: BitOpSelector<T>,
+    
     
 }
 

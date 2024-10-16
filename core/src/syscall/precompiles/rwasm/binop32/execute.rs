@@ -2,8 +2,7 @@ use p3_keccak_air::{NUM_ROUNDS, RC};
 use typenum::False;
 
 use crate::{
-    runtime::{self, Syscall},
-    syscall::precompiles::{keccak256::KeccakPermuteEvent, SyscallContext},
+    alu::create_alu_lookups, runtime::{self, Syscall}, syscall::precompiles::{keccak256::KeccakPermuteEvent, SyscallContext}
 };
 
 use super::{
@@ -34,77 +33,77 @@ impl Syscall for BinOp32Chip {
         rt.clk+=1;
         let (y_read_records, y_val) = rt.mr(stack_ptr_val - 4);
         rt.clk+=1;
-        // let signed_x = x_val as i32;
-        // let signed_y = y_val as i32;
-        // println!("x_signed:{}",signed_x);
-        // println!("y_signed:{}",signed_y);
-        // let  res = {
+        let signed_x = x_val as i32;
+        let signed_y = y_val as i32;
+        println!("x_signed:{}",signed_x);
+        println!("y_signed:{}",signed_y);
+        let  res = {
            
-        //     match op {
-        //         RwasmOp::I32ADD=> {
+            match op {
+                RwasmOp::I32ADD=> {
                     
                     
                       
-        //                 signed_x.wrapping_add( signed_y)
+                        signed_x.wrapping_add( signed_y)
                     
-        //         }
-        //         RwasmOp::I32SUB => {
+                }
+                RwasmOp::I32SUB => {
                  
                     
                       
-        //                 signed_x.wrapping_sub( signed_y)
+                        signed_x.wrapping_sub( signed_y)
                     
-        //         }
-        //         RwasmOp::I32MUL=> {
+                }
+                RwasmOp::I32MUL=> {
                    
     
-        //                 signed_x.wrapping_mul(signed_y)
+                        signed_x.wrapping_mul(signed_y)
                     
-        //         },
-        //         RwasmOp::I32DIVS =>{
-        //             signed_x.wrapping_div(signed_y)
+                },
+                RwasmOp::I32DIVS =>{
+                    signed_x.wrapping_div(signed_y)
                     
-        //         }
-        //         RwasmOp::I32DIVU => {
-        //             (x_val.wrapping_div(y_val)) as i32
-        //         },
-        //         RwasmOp::I32REMS => {
-        //             signed_x.wrapping_div(signed_y) 
-        //         },
-        //         RwasmOp::I32REMU => {
-        //             x_val.wrapping_rem(y_val) as i32
-        //         },
-        //         RwasmOp::I32AND => {
-        //             signed_x & signed_y
-        //         },
-        //         RwasmOp::I32OR => {
-        //             signed_x | signed_y
-        //         },
-        //         RwasmOp::I32XOR => {
-        //             signed_x^signed_y
-        //         },
-        //         RwasmOp::I32SHL =>{
-        //             signed_x<<signed_y
-        //         },
-        //         RwasmOp::I32SHRS => {
-        //             signed_x>>signed_y
-        //         },
-        //         RwasmOp::I32SHRU => {
-        //             (x_val>>y_val) as i32
-        //         },
-        //         RwasmOp::I32ROTL => todo!(),
-        //         RwasmOp::I32ROTR => todo!(),
+                }
+                RwasmOp::I32DIVU => {
+                    (x_val.wrapping_div(y_val)) as i32
+                },
+                RwasmOp::I32REMS => {
+                    signed_x.wrapping_div(signed_y) 
+                },
+                RwasmOp::I32REMU => {
+                    x_val.wrapping_rem(y_val) as i32
+                },
+                RwasmOp::I32AND => {
+                    signed_x & signed_y
+                },
+                RwasmOp::I32OR => {
+                    signed_x | signed_y
+                },
+                RwasmOp::I32XOR => {
+                    signed_x^signed_y
+                },
+                RwasmOp::I32SHL =>{
+                    signed_x<<signed_y
+                },
+                RwasmOp::I32SHRS => {
+                    signed_x>>signed_y
+                },
+                RwasmOp::I32SHRU => {
+                    (x_val>>y_val) as i32
+                },
+                RwasmOp::I32ROTL => todo!(),
+                RwasmOp::I32ROTR => todo!(),
 
             
 
                 
-        //     }
-        // };
-        // println!("res:{}",res);
+            }
+        };
+        println!("res:{}",res);
       
 
      
-        // let new_stack_ptr_val = stack_ptr_val - 4;
+        let new_stack_ptr_val = stack_ptr_val - 4;
         // let stack_ptr_write_record = rt.mw(stack_ptr_addr, new_stack_ptr_val);
         // rt.clk+=1;
         // let res_write_records = rt.mw(new_stack_ptr_val, res as u32);
@@ -148,10 +147,10 @@ impl Syscall for BinOp32Chip {
             stack_ptr_addr,
           
             pre_stack_ptr_val: stack_ptr_val,
-            // post_stack_ptr_val: new_stack_ptr_val,
+            post_stack_ptr_val: new_stack_ptr_val,
             x_val,
             y_val,
-            // res_val: res as u32,
+            res_val: res as u32,
             x_addr: stack_ptr_val,
             y_addr: stack_ptr_val - 4,
             x_read_records,
@@ -160,7 +159,7 @@ impl Syscall for BinOp32Chip {
             // stack_ptr_write_record,
             // res_write_records,
             
-            
+            alu_sub_lookups:create_alu_lookups(),
         });
 
       
