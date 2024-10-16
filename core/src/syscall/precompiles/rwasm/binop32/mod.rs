@@ -28,12 +28,12 @@ pub struct BinOp32Event {
 
    
 
-    // pub x_addr: u32,
-    // pub x_val: u32,
-    // pub x_read_records: MemoryReadRecord,
-    // pub y_val: u32,
-    // pub y_addr: u32,
-    // pub y_read_records: MemoryReadRecord,
+    pub x_addr: u32,
+    pub x_val: u32,
+    pub x_read_records: MemoryReadRecord,
+    pub y_val: u32,
+    pub y_addr: u32,
+    pub y_read_records: MemoryReadRecord,
     // pub res_val: u32,
     // pub res_write_records: MemoryWriteRecord,
     

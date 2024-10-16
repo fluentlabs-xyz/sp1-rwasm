@@ -52,7 +52,7 @@ fn generate_dependencies
                         self.event_to_row::<F>(event)
                         
                         }).collect();
-
+                
         output.add_byte_lookup_events(new_byte_lookup_events.into_iter().flatten().collect());
 
         let num_real_rows = rows.len();
@@ -110,26 +110,26 @@ impl BinOp32Chip {
         cols.rwasm_opcode = F::from_canonical_u32(event.opcode);
 
         cols.stack_ptr_addr = F::from_canonical_u32(event.stack_ptr_addr);
-        // cols.x_memory_record.populate(
-        //     channel,
-        //     event.x_read_records,
-        //     &mut new_byte_lookup_events,
-        // );
+        cols.x_memory_record.populate(
+            channel,
+            event.x_read_records,
+            &mut new_byte_lookup_events,
+        );
 
-        // cols.y_memory_record.populate(
-        //     channel,
-        //     event.y_read_records,
-        //     &mut new_byte_lookup_events,
-        // );
+        cols.y_memory_record.populate(
+            channel,
+            event.y_read_records,
+            &mut new_byte_lookup_events,
+        );
 
         cols.stack_ptr_record.populate(
             channel,
             event.stack_ptr_read_record,
             &mut new_byte_lookup_events,
         );
-        // cols.stack_ptr_addr = F::from_canonical_u32(event.stack_ptr_addr);
-        // cols.x_addr = Word::from(event.x_addr);
-        // cols.y_addr = Word::from(event.y_addr);
+        cols.stack_ptr_addr = F::from_canonical_u32(event.stack_ptr_addr);
+        cols.x_addr = Word::from(event.x_addr);
+        cols.y_addr = Word::from(event.y_addr);
 
         // let op = RwasmOp::from_u32(event.opcode);
        

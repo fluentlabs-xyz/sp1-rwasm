@@ -52,11 +52,12 @@ where
         //     local.post_stack_ptr_val.reduce::<AB>() + AB::Expr::from_canonical_usize(4),
         // );
 
-        // //assert that the x addr and y_addr are different in 4
-        // builder.assert_eq(
-        //     local.x_addr.reduce::<AB>(),
-        //     local.y_addr.reduce::<AB>() + AB::Expr::from_canonical_usize(4),
-        // );
+        //assert that the x addr and y_addr are different in 4
+        builder.when(local.is_real).
+            assert_eq(
+            local.x_addr.reduce::<AB>(),
+            local.y_addr.reduce::<AB>() + AB::Expr::from_canonical_usize(4),
+        );
 
         // // Instead of wrting constraint for rwasm op we simply use the sp1 alu to  do the job.
         // // note that we have to generate sp1 alu event in generate dependencies.
@@ -117,27 +118,27 @@ impl BinOp32Chip {
             &local.stack_ptr_record,
             local.is_real,
         );
-        // //read x
-        // clk_counter+=1;
-        // builder.eval_memory_access(
-        //     local.shard,
-        //     local.channel,
-        //     local.clk +AB::F::from_canonical_usize(clk_counter),
-        //     local.x_addr.reduce::<AB>(),
-        //     &local.x_memory_record,
-        //     local.is_real,
-        // );
+        //read x
+        clk_counter+=1;
+        builder.eval_memory_access(
+            local.shard,
+            local.channel,
+            local.clk +AB::F::from_canonical_usize(clk_counter),
+            local.x_addr.reduce::<AB>(),
+            &local.x_memory_record,
+            local.is_real,
+        );
 
-        // //read y
-        // clk_counter+=1;
-        // builder.eval_memory_access(
-        //     local.shard,
-        //     local.channel,
-        //     local.clk + AB::F::from_canonical_usize(clk_counter),
-        //     local.y_addr.reduce::<AB>(),
-        //     &local.y_memory_record,
-        //     local.is_real,
-        // );
+        //read y
+        clk_counter+=1;
+        builder.eval_memory_access(
+            local.shard,
+            local.channel,
+            local.clk + AB::F::from_canonical_usize(clk_counter),
+            local.y_addr.reduce::<AB>(),
+            &local.y_memory_record,
+            local.is_real,
+        );
 
         // // write res
         // clk_counter+=1;
