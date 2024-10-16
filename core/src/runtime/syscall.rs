@@ -103,10 +103,10 @@ pub enum SyscallCode {
     BLS12381_DOUBLE = 0x00_00_01_1F,
 
     /// Executes the `YaoCustom` precompile.
-    RWASM_DROP= 0x00_00_02_00,
+    RWASM_DROP= 0x00_00_01_2B,
 
     /// Executes the `YaoCustom` precompile.
-    RWASM_BINOP= 0x00_00_02_01,
+    RWASM_BINOP= 0x00_30_01_06,
 }
 
 impl SyscallCode {
@@ -136,8 +136,8 @@ impl SyscallCode {
             0x00_00_00_F1 => SyscallCode::HINT_READ,
             0x00_00_01_1D => SyscallCode::UINT256_MUL,
             0x00_00_01_1C => SyscallCode::BLS12381_DECOMPRESS,
-            0x00_00_02_00 => SyscallCode::RWASM_DROP,
-            0x00_00_02_01 => SyscallCode::RWASM_BINOP,
+            0x00_00_01_2B => SyscallCode::RWASM_DROP,
+            0x00_30_01_06 => SyscallCode::RWASM_BINOP,
             _ => panic!("invalid syscall number: {}", value),
         }
     }

@@ -30,6 +30,7 @@ pub(crate) mod riscv_chips {
     pub use crate::syscall::precompiles::weierstrass::WeierstrassAddAssignChip;
     pub use crate::syscall::precompiles::weierstrass::WeierstrassDecompressChip;
     pub use crate::syscall::precompiles::weierstrass::WeierstrassDoubleAssignChip;
+    pub use crate::syscall::precompiles::rwasm::binop32::BinOp32Chip;
     pub use crate::utils::ec::edwards::ed25519::Ed25519Parameters;
     pub use crate::utils::ec::edwards::EdwardsCurve;
     pub use crate::utils::ec::weierstrass::bls12_381::Bls12381Parameters;
@@ -99,6 +100,8 @@ pub enum RiscvAir<F: PrimeField32> {
     Uint256Mul(Uint256MulChip),
     /// A precompile for decompressing a point on the BLS12-381 curve.
     Bls12381Decompress(WeierstrassDecompressChip<SwCurve<Bls12381Parameters>>),
+    /// A precompile for computing rwasm operation
+    RwasmBinop(BinOp32Chip),
 }
 
 impl<F: PrimeField32> RiscvAir<F> {
@@ -149,6 +152,8 @@ impl<F: PrimeField32> RiscvAir<F> {
         chips.push(RiscvAir::Uint256Mul(uint256_mul));
         let bls12381_decompress = WeierstrassDecompressChip::<SwCurve<Bls12381Parameters>>::new();
         chips.push(RiscvAir::Bls12381Decompress(bls12381_decompress));
+        let rwasmbinop32 = BinOp32Chip::new();
+        chips.push(RiscvAir::RwasmBinop(rwasmbinop32));
         let div_rem = DivRemChip::default();
         chips.push(RiscvAir::DivRem(div_rem));
         let add = AddSubChip::default();

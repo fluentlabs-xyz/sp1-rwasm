@@ -46,12 +46,14 @@ fn generate_dependencies
         let mut rows = Vec::new();
 
         let mut new_byte_lookup_events = Vec::new();
-        input.rwasm_binop_events.iter().map(|event:&BinOp32Event|
+        
+         (rows,new_byte_lookup_events)= input.rwasm_binop_events.iter().map(|event:&BinOp32Event|
                         {
-                            self.event_to_row::<F>(event)
-                        });
+                        self.event_to_row::<F>(event)
+                        
+                        }).collect();
 
-        output.add_byte_lookup_events(new_byte_lookup_events);
+        output.add_byte_lookup_events(new_byte_lookup_events.into_iter().flatten().collect());
 
         let num_real_rows = rows.len();
 
@@ -87,267 +89,274 @@ impl BinOp32Chip {
     ) {
         
         let mut new_byte_lookup_events = Vec::new();
-        let mut new_alu_events= Vec::new(); 
+        // let mut new_alu_events= Vec::new(); 
        
         let shard = event.shard;
         let channel = event.channel;
-
+        let clk = event.clk;
         let mut row = [F::zero(); NUM_BINOP32_MEM_COLS];
-
+        println!("{:?}",event);
         let cols: &mut BinOp32Cols<F> = row.as_mut_slice().borrow_mut();
 
-        cols.x_memory_record.populate(
-            channel,
-            event.x_read_records,
-            &mut new_byte_lookup_events,
-        );
+        cols.shard=F::from_canonical_u32(shard);
+        cols.channel=F::from_canonical_u32(channel);
+        cols.clk=F::from_canonical_u32(clk);
 
-        cols.y_memory_record.populate(
-            channel,
-            event.y_read_records,
-            &mut new_byte_lookup_events,
-        );
+        cols.opcode_memory_record.populate(channel,
+             event.op_read_record,
+             &mut new_byte_lookup_events);
+      
+        cols.op_addr = F::from_canonical_u32(event.op_addr);
+        cols.rwasm_opcode = F::from_canonical_u32(event.opcode);
+
+        cols.stack_ptr_addr = F::from_canonical_u32(event.stack_ptr_addr);
+        // cols.x_memory_record.populate(
+        //     channel,
+        //     event.x_read_records,
+        //     &mut new_byte_lookup_events,
+        // );
+
+        // cols.y_memory_record.populate(
+        //     channel,
+        //     event.y_read_records,
+        //     &mut new_byte_lookup_events,
+        // );
 
         cols.stack_ptr_record.populate(
             channel,
             event.stack_ptr_read_record,
             &mut new_byte_lookup_events,
         );
-        cols.rwasm_opcode = F::from_canonical_u32(event.opcode);
+        // cols.stack_ptr_addr = F::from_canonical_u32(event.stack_ptr_addr);
+        // cols.x_addr = Word::from(event.x_addr);
+        // cols.y_addr = Word::from(event.y_addr);
 
-        cols.stack_ptr_addr = F::from_canonical_u32(event.stack_ptr_addr);
-        cols.x_addr = Word::from(event.x_addr);
-        cols.y_addr = Word::from(event.y_addr);
-
-        let op = RwasmOp::from_u32(event.opcode);
+        // let op = RwasmOp::from_u32(event.opcode);
        
-        cols.arith_selector.is_add = F::from_bool(false);
-        cols.arith_selector.is_sub = F::from_bool(false);
-        cols.arith_selector.is_mul = F::from_bool(false);
-        cols.arith_selector.is_divu = F::from_bool(false);
-        cols.arith_selector.is_divs = F::from_bool(false);
-        cols.arith_selector.is_remu = F::from_bool(false);
-        cols.arith_selector.is_rems = F::from_bool(false);
-        cols.bitop_selector.is_and = F::from_bool(false);
-        cols.bitop_selector.is_or = F::from_bool(false);
-        cols.bitop_selector.is_xor = F::from_bool(false);
-        cols.bitop_selector.is_shl = F::from_bool(false);
-        cols.bitop_selector.is_shrs = F::from_bool(false);
-        cols.bitop_selector.is_shru= F::from_bool(false);
-        cols.bitop_selector.is_rotl= F::from_bool(false);
-        cols.bitop_selector.is_rotr=  F::from_bool(false);
+        // cols.arith_selector.is_add = F::from_bool(false);
+        // cols.arith_selector.is_sub = F::from_bool(false);
+        // cols.arith_selector.is_mul = F::from_bool(false);
+        // cols.arith_selector.is_divu = F::from_bool(false);
+        // cols.arith_selector.is_divs = F::from_bool(false);
+        // cols.arith_selector.is_remu = F::from_bool(false);
+        // cols.arith_selector.is_rems = F::from_bool(false);
+        // cols.bitop_selector.is_and = F::from_bool(false);
+        // cols.bitop_selector.is_or = F::from_bool(false);
+        // cols.bitop_selector.is_xor = F::from_bool(false);
+        // cols.bitop_selector.is_shl = F::from_bool(false);
+        // cols.bitop_selector.is_shrs = F::from_bool(false);
+        // cols.bitop_selector.is_shru= F::from_bool(false);
+        // cols.bitop_selector.is_rotl= F::from_bool(false);
+        // cols.bitop_selector.is_rotr=  F::from_bool(false);
         
-        // we choose one op and disable the rest.
-        match op {
-            RwasmOp::I32ADD => {
-                cols.arith_selector.is_add = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(1); // 1 is the enum value of Opcode::Add
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::ADD,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
-            }
-            RwasmOp::I32SUB => {
-                cols.arith_selector.is_sub = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(2); // 2 is the enum value of Opcode::SUB
+        // // we choose one op and disable the rest.
+        // match op {
+        //     RwasmOp::I32ADD => {
+        //         cols.arith_selector.is_add = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(1); // 1 is the enum value of Opcode::Add
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::ADD,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     }
+        //     RwasmOp::I32SUB => {
+        //         cols.arith_selector.is_sub = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(2); // 2 is the enum value of Opcode::SUB
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::ADD,
-                     a: event.x_val, 
-                     b: event.y_val,
-                     c: event.res_val, 
-                     sub_lookups:  create_alu_lookups()})
-            }
-            RwasmOp::I32MUL => {
-                cols.arith_selector.is_mul= F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(30); // 30 is the enum value of Opcode::MUL
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::ADD,
+        //              a: event.x_val, 
+        //              b: event.y_val,
+        //              c: event.res_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     }
+        //     RwasmOp::I32MUL => {
+        //         cols.arith_selector.is_mul= F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(30); // 30 is the enum value of Opcode::MUL
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::MUL,
-                     a: event.x_val, 
-                     b: event.y_val,
-                     c: event.res_val, 
-                     sub_lookups:  create_alu_lookups()})
-            }
-            RwasmOp::I32DIVS => {
-                cols.arith_selector.is_divs= F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(34); // 34 is the enum value of Opcode::DIVS
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::MUL,
+        //              a: event.x_val, 
+        //              b: event.y_val,
+        //              c: event.res_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     }
+        //     RwasmOp::I32DIVS => {
+        //         cols.arith_selector.is_divs= F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(34); // 34 is the enum value of Opcode::DIVS
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::DIV,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::DIV,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
 
-            }
+        //     }
 
-            RwasmOp::I32DIVU=> {
-                cols.arith_selector.is_divu = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(Opcode::DIVU as u32); // 34 is the enum value of Opcode::DIVU
+        //     RwasmOp::I32DIVU=> {
+        //         cols.arith_selector.is_divu = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(Opcode::DIVU as u32); // 34 is the enum value of Opcode::DIVU
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::DIVU,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::DIVU,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
 
-            }
-            RwasmOp::I32REMS => {
-                cols.arith_selector.is_rems = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(Opcode::REM as u32); // 34 is the enum value of Opcode::DIVU
+        //     }
+        //     RwasmOp::I32REMS => {
+        //         cols.arith_selector.is_rems = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(Opcode::REM as u32); // 34 is the enum value of Opcode::DIVU
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::REM,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
-            },
-            RwasmOp::I32REMU=> {
-                cols.arith_selector.is_rems = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(37); 
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::REM,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     },
+        //     RwasmOp::I32REMU=> {
+        //         cols.arith_selector.is_rems = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(37); 
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::REMU,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
-            },
-            RwasmOp::I32AND => {
-                cols.bitop_selector.is_and = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(37); 
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::REMU,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     },
+        //     RwasmOp::I32AND => {
+        //         cols.bitop_selector.is_and = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(37); 
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::REMU,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
-            },
-            RwasmOp::I32OR => {
-                cols.bitop_selector.is_or = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(3); 
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::REMU,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     },
+        //     RwasmOp::I32OR => {
+        //         cols.bitop_selector.is_or = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(3); 
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::OR,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
-            },
-            RwasmOp::I32XOR => {
-                cols.bitop_selector.is_xor = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(3); 
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::OR,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     },
+        //     RwasmOp::I32XOR => {
+        //         cols.bitop_selector.is_xor = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(3); 
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::XOR,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
-            },
-            RwasmOp::I32SHL => {
-                cols.bitop_selector.is_shl = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(3); 
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::XOR,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     },
+        //     RwasmOp::I32SHL => {
+        //         cols.bitop_selector.is_shl = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(3); 
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::SLL,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
-            },
-            RwasmOp::I32SHRS => {
-                cols.bitop_selector.is_shrs = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(3); 
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::SLL,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     },
+        //     RwasmOp::I32SHRS => {
+        //         cols.bitop_selector.is_shrs = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(3); 
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::SRL,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
-            },
-            RwasmOp::I32SHRU => {
-                cols.bitop_selector.is_shrs = F::from_bool(true);
-                cols.riscv_opcode = F::from_canonical_u32(3); 
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::SRL,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     },
+        //     RwasmOp::I32SHRU => {
+        //         cols.bitop_selector.is_shrs = F::from_bool(true);
+        //         cols.riscv_opcode = F::from_canonical_u32(3); 
 
-                new_alu_events.push(AluEvent{ 
-                    lookup_id:  create_alu_lookup_id(),
-                    shard, channel,
-                    clk: event.clk,
-                    opcode: Opcode::SRA,
-                     a: event.res_val, 
-                     b: event.x_val,
-                     c: event.y_val, 
-                     sub_lookups:  create_alu_lookups()})
-            },
-            RwasmOp::I32ROTL => todo!(),
-            RwasmOp::I32ROTR => todo!(),
-        }
+        //         new_alu_events.push(AluEvent{ 
+        //             lookup_id:  create_alu_lookup_id(),
+        //             shard, channel,
+        //             clk: event.clk,
+        //             opcode: Opcode::SRA,
+        //              a: event.res_val, 
+        //              b: event.x_val,
+        //              c: event.y_val, 
+        //              sub_lookups:  create_alu_lookups()})
+        //     },
+        //     RwasmOp::I32ROTL => todo!(),
+        //     RwasmOp::I32ROTR => todo!(),
+        // }
+
+      
+
+        // cols.pre_stack_ptr_val = Word::from(event.pre_stack_ptr_val);
+        // cols.post_stack_ptr_val = Word::from(event.post_stack_ptr_val);
+
+        // cols.y_write_record.populate(
+        //     channel,
+        //     event.res_write_records,
+        //     &mut new_byte_lookup_events,
+        // );
+
+        // cols.stack_ptr_write_record.populate(
+        //     channel,
+        //     event.stack_ptr_write_record,
+        //     &mut new_byte_lookup_events,
+        // );
 
         cols.is_real = F::from_bool(true);
-
-        cols.pre_stack_ptr_val = Word::from(event.pre_stack_ptr_val);
-        cols.post_stack_ptr_val = Word::from(event.post_stack_ptr_val);
-
-        cols.y_write_record.populate(
-            channel,
-            event.res_write_records,
-            &mut new_byte_lookup_events,
-        );
-
-        cols.stack_ptr_write_record.populate(
-            channel,
-            event.stack_ptr_write_record,
-            &mut new_byte_lookup_events,
-        );
-        
         (row, new_byte_lookup_events)
     }
-}
-
-pub const fn get_msb(a: [u8; WORD_SIZE]) -> u8 {
-    (a[WORD_SIZE - 1] >> (BYTE_SIZE - 1)) & 1
 }

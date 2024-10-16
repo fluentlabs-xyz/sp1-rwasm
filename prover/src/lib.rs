@@ -15,6 +15,7 @@ pub mod install;
 pub mod types;
 pub mod utils;
 pub mod verify;
+pub mod rwasmtest;
 
 use std::borrow::Borrow;
 use std::path::Path;
@@ -264,6 +265,32 @@ impl SP1Prover {
             public_values,
         })
     }
+
+      /// Generate shard proofs which split up and prove the valid execution of a RISC-V program with
+    /// the core prover.
+    #[instrument(name = "prove_core", level = "info", skip_all)]
+    pub fn prove_core_prg(
+        &self,
+        stdin: &SP1Stdin,
+        program:Program,
+    ) -> Result<SP1CoreProof, SP1CoreProverError> {
+        let config = CoreSC::default();
+        
+        let (proof, public_values_stream) = sp1_core::utils::prove_with_subproof_verifier(
+            program,
+            stdin,
+            config,
+            self.core_opts,
+            Some(Arc::new(self)),
+        )?;
+        let public_values = SP1PublicValues::from(&public_values_stream);
+        Ok(SP1CoreProof {
+            proof: SP1CoreProofData(proof.shard_proofs),
+            stdin: stdin.clone(),
+            public_values,
+        })
+    }
+
 
     pub fn get_recursion_core_inputs<'a>(
         &'a self,

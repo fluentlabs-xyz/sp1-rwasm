@@ -239,6 +239,8 @@ impl MachineRecord for ExecutionRecord {
             "bls12381_decompress_events".to_string(),
             self.bls12381_decompress_events.len(),
         );
+        stats.insert("rwasm_binop_events".to_string(),
+         self.rwasm_binop_events.len());
         stats
     }
 
@@ -278,7 +280,7 @@ impl MachineRecord for ExecutionRecord {
             .append(&mut other.uint256_mul_events);
         self.bls12381_decompress_events
             .append(&mut other.bls12381_decompress_events);
-
+        self.rwasm_binop_events.append(&mut other.rwasm_binop_events);
         // Merge the byte lookups.
         for (shard, events_map) in std::mem::take(&mut other.byte_lookups).into_iter() {
             match self.byte_lookups.get_mut(&shard) {
@@ -574,6 +576,12 @@ impl MachineRecord for ExecutionRecord {
         for (i, event) in first.bls12381_decompress_events.iter().enumerate() {
             self.nonce_lookup.insert(event.lookup_id, i as u32);
         }
+
+         // Rwasmbinop events .
+         first.rwasm_binop_events = std::mem::take(&mut self.rwasm_binop_events);
+         for (i, event) in first.rwasm_binop_events.iter().enumerate() {
+             self.nonce_lookup.insert(event.lookup_id, i as u32);
+         }
 
         // Put MemoryInit / MemoryFinalize events in the last shard.
         let last = shards.last_mut().unwrap();

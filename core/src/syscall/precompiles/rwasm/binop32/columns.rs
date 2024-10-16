@@ -27,27 +27,33 @@ pub(crate) struct BinOp32Cols<T> {
     pub nonce: T,
 
     pub rwasm_opcode: T,
+    pub op_addr:T,
     pub riscv_opcode: T,
+    pub opcode_memory_record:MemoryReadCols<T>,
     pub stack_ptr_addr: T,
-
-    pub x_addr: Word<T>,
-    pub y_addr: Word<T>,
-
-    pub x_val: Word<T>,
-    pub y_val: Word<T>,
-    pub pre_stack_ptr_val: Word<T>,
-    pub post_stack_ptr_val: Word<T>,
-    pub res: Word<T>,
-    pub x_memory_record: MemoryReadCols<T>,
-    pub y_memory_record: MemoryReadCols<T>,
-    pub stack_ptr_record: MemoryReadCols<T>,
-    pub y_write_record: MemoryWriteCols<T>,
-    pub stack_ptr_write_record: MemoryWriteCols<T>,
-    pub is_arith: T,
-    pub is_bitop: T,
     pub is_real: T,
-    pub arith_selector: ArithSelector<T>,
-    pub bitop_selector: BitOpSelector<T>,
+
+    pub stack_ptr_record: MemoryReadCols<T>,
+    pub pre_stack_ptr_val: Word<T>,
+    // pub x_addr: Word<T>,
+    // pub y_addr: Word<T>,
+
+    // pub x_val: Word<T>,
+    // pub y_val: Word<T>,
+    
+    // pub post_stack_ptr_val: Word<T>,
+    // pub res: Word<T>,
+  
+    // pub x_memory_record: MemoryReadCols<T>,
+    // pub y_memory_record: MemoryReadCols<T>,
+   
+    // pub y_write_record: MemoryWriteCols<T>,
+    // pub stack_ptr_write_record: MemoryWriteCols<T>,
+    // pub is_arith: T,
+    // pub is_bitop: T,
+   
+    // pub arith_selector: ArithSelector<T>,
+    // pub bitop_selector: BitOpSelector<T>,
     
 }
 
@@ -60,7 +66,6 @@ pub(crate) struct ArithSelector<T>{
     pub is_divs:T,
     pub is_remu:T,
     pub is_rems:T,
-    pub is_real: T,
 }
 
 pub (crate) struct BitOpSelector<T>{

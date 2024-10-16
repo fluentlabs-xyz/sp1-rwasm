@@ -104,9 +104,9 @@ pub const BLS12381_ADD: u32 = 0x00_01_01_1E;
 pub const BLS12381_DOUBLE: u32 = 0x00_00_01_1F;
 
 /// Executes the `BLS12381_DOUBLE` precompile.
-pub const RWASM_DROP: u32 = 0x00_00_02_00;
+pub const RWASM_DROP: u32 = 0x00_00_01_2B;
 
 /// Executes the `BLS12381_DOUBLE` precompile.
-pub const RWASM_BINOP: u32 = 0x00_00_02_01;
+pub const RWASM_BINOP: u32 = 0x00_30_01_06;
 
 

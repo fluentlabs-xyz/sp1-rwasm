@@ -131,10 +131,23 @@ impl<F: PrimeField32> MemoryAccessCols<F> {
         let current_time_value = if use_clk_comparison {
             current_record.timestamp
         } else {
+            
             current_record.shard
         };
 
         let diff_minus_one = current_time_value - prev_time_value - 1;
+        // println!();
+        // println!();
+        // println!();
+        // println!();
+        // println!();
+        // println!();
+        // println!("current_time_value:{}",current_time_value);
+        // println!("diff_minus_one:{}",diff_minus_one);
+        // println!("prev_time_value :{}",prev_time_value);
+        // println!();
+        // println!();
+        // println!();
         let diff_16bit_limb = diff_minus_one & 0xffff;
         self.diff_16bit_limb = F::from_canonical_u32(diff_16bit_limb);
         let diff_8bit_limb = (diff_minus_one >> 16) & 0xff;

@@ -22,24 +22,28 @@ pub struct BinOp32Event {
     pub clk: u32,
 
     pub opcode: u32,
-
-    pub pre_stack_ptr_val: u32,
-    pub post_stack_ptr_val: u32,
-    pub x_val: u32,
-    pub y_val: u32,
-    pub res_val: u32,
-
-    pub x_addr: u32,
-    pub y_addr: u32,
     pub op_addr: u32,
-    pub stack_ptr_addr: u32,
-
     pub op_read_record: MemoryReadRecord,
-    pub x_read_records: MemoryReadRecord,
-    pub y_read_records: MemoryReadRecord,
+
+
+   
+
+    // pub x_addr: u32,
+    // pub x_val: u32,
+    // pub x_read_records: MemoryReadRecord,
+    // pub y_val: u32,
+    // pub y_addr: u32,
+    // pub y_read_records: MemoryReadRecord,
+    // pub res_val: u32,
+    // pub res_write_records: MemoryWriteRecord,
+    
+    pub pre_stack_ptr_val: u32,
+    // pub post_stack_ptr_val: u32,
+   
+    pub stack_ptr_addr: u32,
     pub stack_ptr_read_record: MemoryReadRecord,
-    pub stack_ptr_write_record: MemoryWriteRecord,
-    pub res_write_records: MemoryWriteRecord,
+    // pub stack_ptr_write_record: MemoryWriteRecord,
+    
 
 }
 

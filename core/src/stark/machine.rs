@@ -371,7 +371,7 @@ impl<SC: StarkGenericConfig, A: MachineAir<Val<SC>>> StarkMachine<SC, A> {
         for shard in shards.iter() {
             // Filter the chips based on what is used.
             let chips = self.shard_chips(shard).collect::<Vec<_>>();
-
+          
             // Generate the main trace for each chip.
             let pre_traces = chips
                 .iter()

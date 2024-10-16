@@ -533,7 +533,7 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
 
         // Assert `current_comp_val > prev_comp_val`. We check this by asserting that
         // `0 <= current_comp_val-prev_comp_val-1 < 2^24`.
-        //
+        //x
         // The equivalence of these statements comes from the fact that if
         // `current_comp_val <= prev_comp_val`, then `current_comp_val-prev_comp_val-1 < 0` and will
         // underflow in the prime field, resulting in a value that is `>= 2^24` as long as both
