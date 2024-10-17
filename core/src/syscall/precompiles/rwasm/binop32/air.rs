@@ -50,7 +50,7 @@ where
         builder.when(local.is_real).
         assert_eq(
             local.pre_stack_ptr_val.reduce::<AB>(),
-            local.post_stack_ptr_val.reduce::<AB>() + AB::Expr::from_canonical_usize(8),
+            local.post_stack_ptr_val.reduce::<AB>() + AB::Expr::from_canonical_usize(4),
         );
 
         //assert that the x addr and y_addr are different in 4
@@ -103,8 +103,8 @@ impl BinOp32Chip {
             &local.opcode_memory_record,
             local.is_real,
         );
-        // read stack_ptr
-        clk_counter+=1;
+        // // read stack_ptr
+        // clk_counter+=1;
         builder.eval_memory_access(
             local.shard,
             local.channel,
@@ -113,8 +113,8 @@ impl BinOp32Chip {
             &local.stack_ptr_record,
             local.is_real,
         );
-        //read x
-        clk_counter+=1;
+        // //read x
+        // clk_counter+=1;
         builder.eval_memory_access(
             local.shard,
             local.channel,
@@ -124,8 +124,8 @@ impl BinOp32Chip {
             local.is_real,
         );
 
-        //read y
-        clk_counter+=1;
+        // //read y
+        // clk_counter+=1;
         builder.eval_memory_access(
             local.shard,
             local.channel,
@@ -147,49 +147,49 @@ impl BinOp32Chip {
             local.is_real,
         );
 
-        // //write stack pointer
+        //write stack pointer
         // clk_counter+=1;
-        // builder.eval_memory_access(
-        //     local.shard,
-        //     local.channel,
-        //     local.clk + AB::F::from_canonical_usize(clk_counter),
-        //     local.stack_ptr_addr,
-        //     &local.stack_ptr_write_record,
-        //     local.is_real,
-        // );
+        builder.eval_memory_access(
+            local.shard,
+            local.channel,
+            local.clk + AB::F::from_canonical_usize(clk_counter),
+            local.stack_ptr_addr,
+            &local.stack_ptr_write_record,
+            local.is_real,
+        );
 
-        // // assert that the x_val has not change after read
-        // builder.when(local.is_real).assert_word_eq(local.x_val, *local.x_memory_record.prev_value());
-        // builder.when(local.is_real).assert_word_eq(local.x_val, *local.x_memory_record.value());
+        // assert that the x_val has not change after read
+        builder.when(local.is_real).assert_word_eq(local.x_val, *local.x_memory_record.prev_value());
+        builder.when(local.is_real).assert_word_eq(local.x_val, *local.x_memory_record.value());
 
-        // //assert that the y_val has not change after read
-        // builder.when(local.is_real).assert_word_eq(local.y_val, *local.y_memory_record.prev_value());
-        // builder.when(local.is_real).assert_word_eq(local.y_val, *local.y_memory_record.value());
+        //assert that the y_val has not change after read
+        builder.when(local.is_real).assert_word_eq(local.y_val, *local.y_memory_record.prev_value());
+        builder.when(local.is_real).assert_word_eq(local.y_val, *local.y_memory_record.value());
 
-        // //assert that the stack_ptr_val has not change after read
-        // builder.when(local.is_real).assert_word_eq(
-        //     local.pre_stack_ptr_val,
-        //     *local.stack_ptr_record.prev_value(),
-        // );
-        // builder.when(local.is_real).assert_word_eq(local.pre_stack_ptr_val, *local.stack_ptr_record.value());
+        //assert that the stack_ptr_val has not change after read
+        builder.when(local.is_real).assert_word_eq(
+            local.pre_stack_ptr_val,
+            *local.stack_ptr_record.prev_value(),
+        );
+        builder.when(local.is_real).assert_word_eq(local.pre_stack_ptr_val, *local.stack_ptr_record.value());
 
-        // // // assert writing result into memoery
-        // // assert that before writing, this memory address hold arg2 value
-        // builder.assert_word_eq(local.y_val, *local.y_write_record.prev_value());
+        // // assert writing result into memoery
+        // assert that before writing, this memory address hold arg2 value
+        builder.assert_word_eq(local.y_val, *local.y_write_record.prev_value());
 
-        // builder.assert_word_eq(local.res, *local.y_write_record.value());
+        builder.assert_word_eq(local.res, *local.y_write_record.value());
 
-        // //assert that the correct result of post_stack_ptr_val  has been write into memory
-        // // assert that before writing, this memory address holds stack_ptr_val
-        // builder.assert_word_eq(
-        //     local.pre_stack_ptr_val,
-        //     *local.stack_ptr_write_record.prev_value(),
-        // );
-        // //assert that the correct result of arg1+arg2 has been write into memory
-        // builder.assert_word_eq(
-        //     local.post_stack_ptr_val,
-        //     *local.stack_ptr_write_record.value(),
-        // );
+        //assert that the correct result of post_stack_ptr_val  has been write into memory
+        // assert that before writing, this memory address holds stack_ptr_val
+        builder.assert_word_eq(
+            local.pre_stack_ptr_val,
+            *local.stack_ptr_write_record.prev_value(),
+        );
+        //assert that the correct result of arg1+arg2 has been write into memory
+        builder.assert_word_eq(
+            local.res,
+            *local.y_write_record.value(),
+        );
     }
 
 }

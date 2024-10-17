@@ -13,7 +13,7 @@ use super::{
 
 impl Syscall for BinOp32Chip {
     fn num_extra_cycles(&self) -> u32 {
-        6
+        1
     }
 
     fn execute(&self, rt: &mut SyscallContext, arg1: u32, arg2: u32) -> Option<u32> {
@@ -26,13 +26,13 @@ impl Syscall for BinOp32Chip {
        
         println!("opcode:{}",opcode);
         let op = RwasmOp::from_u32(opcode);
-        rt.clk+=1;
+       
         let (stack_ptr_read_record, stack_ptr_val) = rt.mr(arg2);
-        rt.clk+=1;
+        
         let (x_read_records, x_val) = rt.mr(stack_ptr_val);
-        rt.clk+=1;
+        
         let (y_read_records, y_val) = rt.mr(stack_ptr_val - 4);
-        rt.clk+=1;
+        
         let signed_x = x_val as i32;
         let signed_y = y_val as i32;
         println!("x_signed:{}",signed_x);
@@ -102,12 +102,12 @@ impl Syscall for BinOp32Chip {
         println!("res:{}",res);
       
 
-     
-        let new_stack_ptr_val = stack_ptr_val - 8;
-        // let stack_ptr_write_record = rt.mw(stack_ptr_addr, new_stack_ptr_val);
+        rt.clk+=1;
+        let new_stack_ptr_val = stack_ptr_val - 4;
+        let stack_ptr_write_record = rt.mw(stack_ptr_addr, new_stack_ptr_val);
         // rt.clk+=1;
         let res_write_records = rt.mw(new_stack_ptr_val, res as u32);
-        rt.clk+=1;
+        
         // // Push the Keccak permute event.
         let shard = rt.current_shard();
         let channel = rt.current_channel();
@@ -156,7 +156,7 @@ impl Syscall for BinOp32Chip {
             x_read_records,
             y_read_records,
             stack_ptr_read_record,
-            // stack_ptr_write_record,
+            stack_ptr_write_record,
             res_write_records,
             
             alu_sub_lookups:create_alu_lookups(),

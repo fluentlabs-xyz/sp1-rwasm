@@ -376,11 +376,11 @@ impl BinOp32Chip {
             &mut new_byte_lookup_events,
         );
 
-        // cols.stack_ptr_write_record.populate(
-        //     channel,
-        //     event.stack_ptr_write_record,
-        //     &mut new_byte_lookup_events,
-        // );
+        cols.stack_ptr_write_record.populate(
+            channel,
+            event.stack_ptr_write_record,
+            &mut new_byte_lookup_events,
+        );
         
         cols.is_real = F::from_bool(true);
         
