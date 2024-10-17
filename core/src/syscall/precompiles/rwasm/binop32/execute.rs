@@ -13,7 +13,7 @@ use super::{
 
 impl Syscall for BinOp32Chip {
     fn num_extra_cycles(&self) -> u32 {
-        4
+        6
     }
 
     fn execute(&self, rt: &mut SyscallContext, arg1: u32, arg2: u32) -> Option<u32> {
@@ -103,11 +103,11 @@ impl Syscall for BinOp32Chip {
       
 
      
-        let new_stack_ptr_val = stack_ptr_val - 4;
+        let new_stack_ptr_val = stack_ptr_val - 8;
         // let stack_ptr_write_record = rt.mw(stack_ptr_addr, new_stack_ptr_val);
         // rt.clk+=1;
-        // let res_write_records = rt.mw(new_stack_ptr_val, res as u32);
-        // rt.clk+=1;
+        let res_write_records = rt.mw(new_stack_ptr_val, res as u32);
+        rt.clk+=1;
         // // Push the Keccak permute event.
         let shard = rt.current_shard();
         let channel = rt.current_channel();
@@ -157,7 +157,7 @@ impl Syscall for BinOp32Chip {
             y_read_records,
             stack_ptr_read_record,
             // stack_ptr_write_record,
-            // res_write_records,
+            res_write_records,
             
             alu_sub_lookups:create_alu_lookups(),
         });

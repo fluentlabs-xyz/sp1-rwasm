@@ -43,7 +43,7 @@ pub struct BinOp32Event {
     pub stack_ptr_addr: u32,
     pub stack_ptr_read_record: MemoryReadRecord,
 
-    // pub res_write_records: MemoryWriteRecord,
+    pub res_write_records: MemoryWriteRecord,
     // pub stack_ptr_write_record: MemoryWriteRecord,
     
     pub alu_sub_lookups:[usize;6],

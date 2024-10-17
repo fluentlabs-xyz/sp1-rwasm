@@ -50,7 +50,7 @@ where
         builder.when(local.is_real).
         assert_eq(
             local.pre_stack_ptr_val.reduce::<AB>(),
-            local.post_stack_ptr_val.reduce::<AB>() + AB::Expr::from_canonical_usize(4),
+            local.post_stack_ptr_val.reduce::<AB>() + AB::Expr::from_canonical_usize(8),
         );
 
         //assert that the x addr and y_addr are different in 4
@@ -135,17 +135,17 @@ impl BinOp32Chip {
             local.is_real,
         );
 
-        // // write res
-        // clk_counter+=1;
+        // write res
+        clk_counter+=1;
        
-        // builder.eval_memory_access(
-        //     local.shard,
-        //     local.channel,
-        //     local.clk+ AB::F::from_canonical_usize(clk_counter),
-        //     local.y_addr.reduce::<AB>(),
-        //     &local.y_write_record,
-        //     local.is_real,
-        // );
+        builder.eval_memory_access(
+            local.shard,
+            local.channel,
+            local.clk+ AB::F::from_canonical_usize(clk_counter),
+            local.post_stack_ptr_val.reduce::<AB>(),
+            &local.y_write_record,
+            local.is_real,
+        );
 
         // //write stack pointer
         // clk_counter+=1;
@@ -158,7 +158,7 @@ impl BinOp32Chip {
         //     local.is_real,
         // );
 
-        // assert that the x_val has not change after read
+        // // assert that the x_val has not change after read
         // builder.when(local.is_real).assert_word_eq(local.x_val, *local.x_memory_record.prev_value());
         // builder.when(local.is_real).assert_word_eq(local.x_val, *local.x_memory_record.value());
 

@@ -370,19 +370,20 @@ impl BinOp32Chip {
         cols.pre_stack_ptr_val = Word::from(event.pre_stack_ptr_val);
         cols.post_stack_ptr_val = Word::from(event.post_stack_ptr_val);
 
-        // cols.y_write_record.populate(
-        //     channel,
-        //     event.res_write_records,
-        //     &mut new_byte_lookup_events,
-        // );
+        cols.y_write_record.populate(
+            channel,
+            event.res_write_records,
+            &mut new_byte_lookup_events,
+        );
 
         // cols.stack_ptr_write_record.populate(
         //     channel,
         //     event.stack_ptr_write_record,
         //     &mut new_byte_lookup_events,
         // );
-
+        
         cols.is_real = F::from_bool(true);
+        
         (row, new_byte_lookup_events,new_alu_events)
     }
 }

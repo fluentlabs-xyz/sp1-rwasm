@@ -47,8 +47,8 @@ pub(crate) struct BinOp32Cols<T> {
     pub x_memory_record: MemoryReadCols<T>,
     pub y_memory_record: MemoryReadCols<T>,
    
-    // pub y_write_record: MemoryWriteCols<T>,
-    // pub stack_ptr_write_record: MemoryWriteCols<T>,
+    pub y_write_record: MemoryWriteCols<T>,
+    pub stack_ptr_write_record: MemoryWriteCols<T>,
     pub alu_event_nonce: T,
     pub is_arith: T,
     pub is_bitop: T,
