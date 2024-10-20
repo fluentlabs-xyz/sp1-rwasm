@@ -42,23 +42,23 @@ mod tests {
          let x_value:u32 = 0x11;
          let y_value:u32 = 0x23;
          let op_addr = 0x00_00_30_00;
-        //  let mut mem= BTreeMap::new();
-        //  mem.insert(sp_addr, sp_value);
-        //  mem.insert(sp_value, x_value);
-        //  mem.insert(sp_value-4, y_value);
-        //  mem.insert(op_addr, 106);
-        //  println!("{:?}",mem);
+         let mut mem= BTreeMap::new();
+         mem.insert(sp_addr, sp_value);
+         mem.insert(sp_value, x_value);
+         mem.insert(sp_value-4, y_value);
+         mem.insert(op_addr, 106);
+         println!("{:?}",mem);
          let instructions = vec![
              //
-             Instruction::new(Opcode::ADD, 29, 0,  sp_value, false, true),
-             Instruction::new(Opcode::SW, 29, 0, sp_addr, false, true),
+            //  Instruction::new(Opcode::ADD, 29, 0,  sp_value, false, true),
+            //  Instruction::new(Opcode::SW, 29, 0, sp_addr, false, true),
 
-             Instruction::new(Opcode::ADD, 28, 0,  x_value, false, true),
-             Instruction::new(Opcode::SW, 28, 0, sp_value, false, true),
-             Instruction::new(Opcode::ADD, 27, 0,  y_value, false, true),
-             Instruction::new(Opcode::SW, 27, 0, sp_value-4, false, true),
-             Instruction::new(Opcode::ADD, 25, 0,  106, false, true),
-             Instruction::new(Opcode::SW, 25, 0, op_addr, false, true),
+            //  Instruction::new(Opcode::ADD, 28, 0,  x_value, false, true),
+            //  Instruction::new(Opcode::SW, 28, 0, sp_value, false, true),
+            //  Instruction::new(Opcode::ADD, 27, 0,  y_value, false, true),
+            //  Instruction::new(Opcode::SW, 27, 0, sp_value-4, false, true),
+            //  Instruction::new(Opcode::ADD, 25, 0,  106, false, true),
+            //  Instruction::new(Opcode::SW, 25, 0, op_addr, false, true),
             
              //
 
@@ -71,9 +71,9 @@ mod tests {
          let program = Program{instructions:instructions,
               pc_base:0,
               pc_start:0,
-               
-             memory_image: BTreeMap::new() };
-        
+              memory_image: mem };
+            //  memory_image: BTreeMap::new() };
+            
         program
  
     }
